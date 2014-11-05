@@ -1,0 +1,122 @@
+# -*- coding: utf-8 -*-
+"""
+"""
+from enaml.widgets.api import (DockItem, Container, Slider, Menu, Action,
+                               Notebook, Page, CheckBox, DockArea, ObjectCombo,
+                               Label, ScrollArea)
+from enaml.layout.api import hbox, grid, align
+from enaml.stdlib.slider_transform import FloatTransform
+from enaml.stdlib.fields import FloatField
+
+enamldef FloatSlider(Container):
+    """
+    """
+    attr exp
+    alias label : lb.text
+    attr attr_name
+    attr stage = exp.vars_meta[attr_name]['stage']
+    event refresh :: fi.value = getattr(exp.model, attr_name)
+
+    constraints = [hbox(lb, fi, sl, va), align('v_center', lb, fi)]
+
+    Label: lb:
+        pass
+
+    FloatField: fi:
+        hug_width = 'strong'
+        value = getattr(exp.model, attr_name)
+        value ::
+            va.value = change['value']
+            setattr(exp.model, attr_name, changed['value'])
+            if exp.auto_update:
+                exp.request_recomputation(stage)
+
+    Slider: sl:
+        FloatTransform:
+            value << fi.value
+            value::
+                va.value = change['value']
+                setattr(exp.model, attr_name, changed['value'])
+                if exp.auto_update:
+                    exp.request_recomputation(stage)
+            minimum << fi.value - exp.manipulate_vars[attr_name]
+            maximum << fi.value + exp.manipulate_vars[attr_name]
+            precision = 1000
+
+    FloatField:
+        read_only = True
+
+enamldef FloatVaryingSlider(Container): main:
+    """
+    """
+    attr exp
+    alias label : lb.text
+    attr attr_name
+    attr stage << exp.vars_meta[attr_name]['stage']
+    event refresh :: fi.value = _varying.value
+
+    attr _varying = getattr(exp.model, attr_name)
+
+    constraints = [hbox(lb, fi, sl, va), align('v_center', lb, fi)]
+
+    Label: lb:
+        pass
+
+    FloatField: fi:
+        value = _varying.value
+        value ::
+            va.value = change['value']
+            _varying.value = change['value']
+            if exp.auto_update:
+                exp.request_recomputation(stage)
+
+    Slider: sl:
+        FloatTransform:
+            value << fi.value
+            value::
+                va.value = change['value']
+                _varying.value = change['value']
+                if exp.auto_update:
+                    exp.request_recomputation(stage)
+            minimum << fi.value - exp.manipulate_vars[attr_name]
+            maximum << fi.value + exp.manipulate_vars[attr_name]
+            precision = 1000
+
+    FloatField: va:
+        read_only = True
+
+enamldef LinspaceVaryingEditor(Container):
+    """
+    """
+    attr exp
+    attr attr_name
+    attr stage << exp.vars_meta[attr_name]['stage']
+
+    attr _varying << getattr(exp.model, attr_name)
+
+    padding = 0
+    constraints = [grid([min_lb, max_lb, ste_lb], [min_vl, max_vl, ste_vl])]
+
+    Label: min_lb:
+        text = 'Min'
+    FloatField: min_vl:
+        value := _varying.minimum
+        value ::
+            if exp.auto_update:
+                exp.request_recomputation(stage)
+
+    Label: max_lb:
+        text = 'Max'
+    FloatField: max_vl:
+        value := _varying.maximum
+        value ::
+            if exp.auto_update:
+                exp.request_recomputation(stage)
+
+    Label: ste_lb:
+        text = 'Step'
+    FloatField: ste_vl:
+        value := _varying.step
+        value ::
+            if exp.auto_update:
+                exp.request_recomputation(stage)

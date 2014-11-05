@@ -1,0 +1,149 @@
+# -*- coding: utf-8 -*-
+"""
+"""
+from enaml.widgets.api import (DockItem, Container, Menu, Action, Dialog,
+                               Notebook, Page, CheckBox, DockArea, ObjectCombo,
+                               Label, ScrollArea, FlowArea, FlowItem,
+                               GroupBox, PushButton)
+from enaml.core.api import Include, Conditional
+from enaml.layout.api import hbox, vbox, spacer, factory
+from math import pi
+
+from ..utils.has_pref_atom import tagged_members
+from ..utils.ui.manipulation_tools import (FloatSlider, FloatVaryingSlider,
+                                           LinspaceVaryingEditor)
+from ..utils.ui.config_tools import (FloatVaryingField, VaryingConfig,
+                                     FloatConfig)
+from ..plotting.d1.plot_views import AddPlot1DDialog
+
+
+def _def_range(model, m, member):
+    return model.manipulate_vars.get(m, float(member.metadata['def_range']))
+
+
+def _build_config_content(exp, model):
+    """
+    """
+    configs = []
+    tagged = tagged_members(model, 'stage')
+    for m in sorted(tagged):
+        member = tagged[m]
+        if exp.vars_meta[m]['varying']:
+            w = VaryingConfig(exp=exp, var_name=m,
+                              label=member.metadata['label'],
+                              tool_tip=member.metadata['desc'],
+                              default_range=_def_range(exp, m, member)
+                              )
+            configs.append(w)
+        else:
+            w = FloatConfig(exp=exp, var_name=m,
+                            label=member.metadata['label'],
+                            tool_tip=member.metadata['desc'],
+                            default_range=_def_range(exp, m, member)
+                            )
+            configs.append(w)
+
+    return configs
+
+
+def _constraints(container, col_len=8):
+    """
+    """
+    widgets = container.visible_widgets()
+    cols = [widgets[i:i+col_len] for i in range(0, len(widgets), col_len)]
+
+    constraints = []
+#    for col in cols:
+#        constraints.extend([w.check.width == col[0].check.width for w in col])
+    constraints.extend([col[0].width == cols[0][0].width for col in cols[1:]])
+    constraints.append(hbox(*[vbox(*col) for col in cols]))
+    return constraints
+
+enamldef Experiment1DConfig(Dialog): di:
+
+    attr exp
+
+    title = 'Choose manipulable vars.'
+
+    Container:
+
+        constraints = [vbox(fl, hbox(spacer, cl))]
+
+        Container: fl:
+            constraints << [factory(_constraints)]
+            Include:
+                objects << _build_config_content(exp, model.model)
+        PushButton: cl:
+            text = 'Close'
+            clicked ::
+                di.close()
+
+
+def _create_manipulate_uis(exp, manipulate_vars):
+    """
+    """
+    uis = []
+    for v in manipulate_vars:
+        if exp.vars_meta[v]['varying']:
+            uis.append(FloatVaryingSlider(exp=exp, attr_name=v,
+                                          label=v.capitalize()))
+        else:
+            uis.append(FloatSlider(exp=exp, attr_name=v,
+                                   label=v.capitalize()))
+    return uis
+
+enamldef Experiment1DItem(DockItem): main:
+
+    attr exp
+    title = name.capitalize()
+
+    Container:
+
+        constraints = [hbox(vbox(auto, x_ax, man, ed, gr, re), plt_area)]
+
+        CheckBox: auto:
+            text = 'Auto-recompute'
+            checked := model.auto_update
+
+        GroupBox: x_ax:
+            title = 'X axis'
+            ObjectCombo:
+                items = sorted([exp.vars_meta[s]['label']
+                                for s in exp.vars_meta
+                                if exp.vars_meta[s]['varying']])
+                selected << exp.vars_meta[model.x_axis]['label']
+                selected ::
+                    for s in exp.vars_meta:
+                        if exp.vars_meta[s]['label'] == selected:
+                            exp.x_axis = s
+                            break
+
+            LinspaceVaryingEditor:
+                exp << main.exp
+                attr_name << exp.x_axis
+
+        ScrollArea: man:
+            Container:
+                Include: incl_man:
+                    objects << _create_manipulate_uis(exp,
+                                                      exp.manipulate_vars)
+
+        PushButton: ed:
+            text = 'Edit'
+            clicked ::
+                Experiment1DConfig(self, exp=exp).exec_()
+                for m in incl_man.objects:
+                    m.refresh = True
+
+        PushButton: gr:
+            text = 'Add graph'
+            clicked ::
+                AddPlot1DDialog(self, exp=exp, area=plt_area).exec_()
+
+        PushButton: re:
+            text = 'Recompute'
+            clicked ::
+                exp.request_recomputation(stage='field')
+
+        DockArea: plt_area:
+            pass

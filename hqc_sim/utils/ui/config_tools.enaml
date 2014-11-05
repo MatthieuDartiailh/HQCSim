@@ -1,0 +1,99 @@
+# -*- coding: utf-8 -*-
+"""
+"""
+from enaml.core.api import Conditional
+from enaml.widgets.api import (DockItem, Container, Slider, Menu, Action,
+                               Notebook, Page, CheckBox, DockArea, ObjectCombo,
+                               Label, ScrollArea, FlowArea, FlowItem,
+                               GroupBox)
+from enaml.layout.api import hbox
+from enaml.stdlib.slider_transform import FloatTransform
+from enaml.stdlib.fields import FloatField
+
+
+enamldef FloatVaryingField(FloatField):
+
+    attr varying
+    value := varying.value
+
+enamldef VaryingConfig(Container): cont:
+    """
+    """
+    attr exp
+    attr var_name
+    attr default_range : float
+    attr label
+    enabled << var_name not in exp.model.varyings
+
+    alias check : cb
+
+    padding = 0
+    constraints << [hbox(cb, fi, *co.items)]
+
+    CheckBox: cb:
+        text = cont.label
+        checked << var_name in exp.manipulate_vars
+        tool_tip = cont.tool_tip
+        toggled ::
+            if not change['value']:
+                aux = exp.manipulate_vars.copy()
+                del aux[var_name]
+                exp.manipulate_vars = aux
+            else:
+                aux = exp.manipulate_vars.copy()
+                aux[var_name] = default_range
+                exp.manipulate_vars = aux
+
+    FloatVaryingField: fi:
+        varying = getattr(exp.model, var_name)
+
+    Conditional: co:
+        condition << cb.checked
+        FloatField:
+            value << default_range
+            value ::
+                if value != exp.manipulate_vars.get(var_name):
+                    aux = exp.manipulate_vars.copy()
+                    aux[var_name] = value
+                    exp.manipulate_vars = aux
+
+enamldef FloatConfig(Container): cont:
+    """
+    """
+    attr exp
+    attr var_name
+    attr default_range
+    attr label
+
+    alias check : cb
+
+    padding = 0
+    constraints << [hbox(cb, fi, *co.items)]
+
+    CheckBox: cb:
+        text = cont.label
+        checked << var_name in exp.manipulate_vars
+        tool_tip = cont.tool_tip
+        toggled ::
+            if change['value']:
+                aux = exp.manipulate_vars.copy()
+                del aux[var_name]
+                exp.manipulate_vars = aux
+            else:
+                aux = exp.manipulate_vars.copy()
+                aux[var_name] = default_range
+                exp.manipulate_vars = aux
+
+    FloatField: fi:
+        value << getattr(exp.model, var_name)
+        value :: setattr(exp.model, var_name, value)
+
+    Conditional: co:
+        condition << cb.checked
+        FloatField:
+            value << default_range
+            value ::
+                if value != exp.manipulate_vars.get(var_name):
+                    aux = exp.manipulate_vars.copy()
+                    aux[var_name] = value
+                    exp.manipulate_vars = aux
