@@ -31,9 +31,10 @@ class Varying(HasPrefAtom):
     #: Array of points.
     linspace = Property(cached=True)
 
-    def __init__(self, value, **kwargs):
+    def __init__(self, value=None, **kwargs):
         super(Varying, self).__init__(**kwargs)
-        self.value = value
+        if value:
+            self.value = value
 
     def _get_points(self):
         return int(round((self.maximum-self.minimum)/self.step)) + 1

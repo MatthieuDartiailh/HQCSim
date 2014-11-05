@@ -8,7 +8,7 @@ from .curves import AbstractCurve1DInfos
 
 
 def exp1d():
-    from ..experiments.experiment1d import Experiment1D
+    from ...experiments.experiment1d import Experiment1D
     return Experiment1D
 
 

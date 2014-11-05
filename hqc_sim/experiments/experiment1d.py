@@ -15,7 +15,7 @@ class Experiment1D(HasPrefAtom):
     name = Str()
 
     #: Object describing the whole physic of the spinqubit.
-    sqmodel = Value()
+    model = Value()
 
     # Here store plots.
     plots = List()
@@ -26,10 +26,10 @@ class Experiment1D(HasPrefAtom):
     #: List of the parameters used to manipulate the graph
     manipulate_vars = Dict()
 
-    #: Metadata of the different variables as identified from the sqmodel.
+    #: Metadata of the different variables as identified from the model.
     vars_meta = Dict()
 
-    #: Main plottable data of the sqmodel.
+    #: Main plottable data of the model.
     plottable_data = Dict()
 
     #: Flag indicating whether or not to aumatically update.
@@ -61,7 +61,7 @@ class Experiment1D(HasPrefAtom):
         else:
             raise NotImplementedError()
 
-    def _post_setattr_sqmodel(self, old, new):
+    def _post_setattr_model(self, old, new):
         """
         """
         if old:

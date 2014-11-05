@@ -17,8 +17,8 @@ from ..utils.ui.config_tools import (FloatVaryingField, VaryingConfig,
 from ..plotting.d1.plot_views import AddPlot1DDialog
 
 
-def _def_range(model, m, member):
-    return model.manipulate_vars.get(m, float(member.metadata['def_range']))
+def _def_range(exp, m, member):
+    return exp.manipulate_vars.get(m, float(member.metadata['def_range']))
 
 
 def _build_config_content(exp, model):
@@ -72,7 +72,7 @@ enamldef Experiment1DConfig(Dialog): di:
         Container: fl:
             constraints << [factory(_constraints)]
             Include:
-                objects << _build_config_content(exp, model.model)
+                objects << _build_config_content(exp, exp.model)
         PushButton: cl:
             text = 'Close'
             clicked ::
@@ -103,7 +103,7 @@ enamldef Experiment1DItem(DockItem): main:
 
         CheckBox: auto:
             text = 'Auto-recompute'
-            checked := model.auto_update
+            checked := exp.auto_update
 
         GroupBox: x_ax:
             title = 'X axis'
@@ -111,7 +111,7 @@ enamldef Experiment1DItem(DockItem): main:
                 items = sorted([exp.vars_meta[s]['label']
                                 for s in exp.vars_meta
                                 if exp.vars_meta[s]['varying']])
-                selected << exp.vars_meta[model.x_axis]['label']
+                selected << exp.vars_meta[exp.x_axis]['label']
                 selected ::
                     for s in exp.vars_meta:
                         if exp.vars_meta[s]['label'] == selected:

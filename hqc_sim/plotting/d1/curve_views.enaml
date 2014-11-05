@@ -8,7 +8,7 @@ from enaml.widgets.api import (DockItem, Container, Menu, Action, Dialog,
 from enaml.stdlib.mapped_view import MappedView
 from enaml.layout.api import InsertItem, hbox, vbox, spacer, grid, factory
 from ...utils.ui.qt_list_str_widget import QtListStrWidget
-from .curves import SimpleCurve1DInfos, SumCurve1DInfos
+from .curves import SimpleCurve1DInfos, SumCurve1DInfos, CURVE_INFOS
 
 
 enamldef AbstractCurveConfig(Container):
@@ -144,7 +144,7 @@ enamldef Curves1DConfig(Container): main:
                 if CURVE_INFOS[c] == selected and type(main._selected) != c:
                     new = c(id=main._selected.id)
                     if main._selected in main.plot.y_infos:
-                        main.plot.replace_curves(main._selected, new)
+                        main.plot.replace_curve(main._selected, new)
                     else:
                         main.plot.add_curves([new])
                     main._selected = new

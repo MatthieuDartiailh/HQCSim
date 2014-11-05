@@ -5,6 +5,7 @@
 # license : MIT license
 # =============================================================================
 from atom.api import Str, Unicode, Enum, Atom
+from collections import OrderedDict
 from ast import literal_eval
 
 
@@ -133,7 +134,7 @@ def preferences_from_members(self):
         """ Get the members values as string to store them in .ini files.
 
         """
-        pref = {}
+        pref = OrderedDict()
         for name in tagged_members(self, 'pref'):
             old_val = getattr(self, name)
             if issubclass(type(old_val), HasPrefAtom):
