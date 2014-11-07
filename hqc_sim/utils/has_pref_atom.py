@@ -147,7 +147,7 @@ def preferences_from_members(self):
         return pref
 
 
-def update_members_from_preferences(self, **parameters):
+def update_members_from_preferences(self, parameters):
     """ Use the string values given in the parameters to update the members
 
     This function will call itself on any tagged HasPrefAtom member.
@@ -160,7 +160,7 @@ def update_members_from_preferences(self, **parameters):
 
         old_val = getattr(self, name)
         if issubclass(type(old_val), HasPrefAtom):
-            old_val.update_members_from_preferences(**parameters[name])
+            old_val.update_members_from_preferences(parameters[name])
         elif old_val is None:
             pass
         else:

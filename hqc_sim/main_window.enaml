@@ -3,10 +3,14 @@
 """
 from atom.api import List
 from enaml.validator import Validator
+from enaml.core.api import Looper
 from enaml.layout.api import grid, vbox, spacer, InsertItem, hbox
 from enaml.widgets.api import (MainWindow, MenuBar, Menu, Action, DockArea,
                                Container, Dialog, Label, Field, ObjectCombo,
-                               PushButton)
+                               PushButton, FileDialogEx)
+
+open_file_dialog = FileDialogEx.get_open_file_name
+save_file_dialog = FileDialogEx.get_save_file_name
 
 
 class ExpNameValidator(Validator):
@@ -17,22 +21,13 @@ class ExpNameValidator(Validator):
         return text not in self.forbidden
 
 
-def _default_name(exp_names):
-    i = 0
-    def_name = 'Experiment {}'
-    while True:
-        if def_name.format(i) not in exp_names:
-            return def_name.format(i)
-        i += 1
-
-
 enamldef ExpCreationDialog(Dialog): dial:
     """
     """
     attr model
     attr _exp_names = [e.name for e in model.running_exps]
 
-    attr exp_name << n_val.text if n_val.text else _default_name(_exp_names)
+    attr exp_name << n_val.text if n_val.text else model.default_exp_name()
     attr exp_type << e_val.selected
     attr mod_type << m_val.selected
 
@@ -47,13 +42,13 @@ enamldef ExpCreationDialog(Dialog): dial:
         Label: n_lab:
             text = 'Name'
         Field: n_val:
-            placeholder = _default_name(_exp_names)
+            placeholder = model.default_exp_name()
             validator = ExpNameValidator(forbidden=_exp_names)
 
         Label: e_lab:
             text = 'Experiment'
         ObjectCombo: e_val:
-            items = model.experiments
+            items = model.experiments.keys()
 
         Label: m_lab:
             text = 'Model'
@@ -71,7 +66,7 @@ enamldef ExpCreationDialog(Dialog): dial:
                 dial.accept()
 
 
-enamldef HQCSimWindow(MainWindow):
+enamldef HQCSimWindow(MainWindow): main:
     """
     """
     attr model
@@ -83,16 +78,34 @@ enamldef HQCSimWindow(MainWindow):
             title = 'File'
             Action:
                 text = 'New experiment'
-                triggered::
+                triggered ::
                     dial = ExpCreationDialog(model=model)
                     if dial.exec_():
-                        _, view = model.create_experiment(dial.exp_name,
-                                                          dial.exp_type,
-                                                          dial.mod_type,
-                                                          area)
+                        model.build_experiment(dial.exp_name, dial.exp_type,
+                                               dial.mod_type, area)
                         area.update_layout(InsertItem(item=dial.exp_name))
+            Menu:
+                title = 'Save experiment'
+                enabled << bool(model.running_exps)
+                Looper:
+                    iterable << model.running_exps[:]
+                    Action:
+                        text = loop_item.name
+                        triggered ::
+                            path = save_file_dialog(main,
+                                                    name_filters=['*.ini'])
+                            if path:
+                                model.save_experiment(path, loop_item)
 
+            Action:
+                text = 'Load experiment'
+                triggered ::
 
+                    path = open_file_dialog(main, name_filters=['*.ini'])
+                    if path:
+                        exp, _ = model.load_experiment(path, area)
+                        if exp:
+                            area.update_layout(InsertItem(item=exp.name))
     Container:
         DockArea: area:
             pass

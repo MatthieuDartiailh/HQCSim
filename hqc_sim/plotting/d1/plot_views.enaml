@@ -4,7 +4,7 @@
 from enaml.core.api import Looper, Conditional
 from enaml.widgets.api import (DockItem, Container, Menu, Action, Dialog,
                                PushButton, ToolBar, Action, Notebook, Page,
-                               ObjectCombo, RadioButton, Label)
+                               ObjectCombo, RadioButton, Label, Field)
 from enaml.stdlib.mapped_view import MappedView
 from enaml.layout.api import InsertItem, hbox, vbox, spacer, grid, factory
 import traits_enaml
@@ -12,8 +12,13 @@ with traits_enaml.imports():
     from traits_enaml.widgets.enable_canvas import EnableCanvas
 
 from ...utils.ui.qt_list_str_widget import QtListStrWidget
-from .plots import Plot1D
 from .curve_views import Curves1DConfig
+
+
+def _factory(exp):
+    from .plots import Plot1D
+    return Plot1D(experiment=exp)
+
 
 enamldef Plot1DConfig(Notebook): main:
     """ Main widget to edit the content of a plot.
@@ -31,27 +36,26 @@ enamldef Plot1DConfig(Notebook): main:
 #    Page:
 
 
-def _find_new_item_id(area):
-    """
-    """
-    existing_ids = [item.name for item in area.dock_items()]
-    for i in range(len(existing_ids)):
-        aux = 'item_{}'.format(i)
-        if aux not in existing_ids:
-            return aux
-
-    return 'item_{}'.format(len(existing_ids))
-
 enamldef AddPlot1DDialog(Dialog): dial:
     """
     """
     attr exp
     attr area
-    attr plot << Plot1D(experiment=exp)
+    attr plot << _factory(exp)
+    title = 'Parametrize your new plot'
+    closed ::
+        if dial.result:
+            item = Plot1DItem(plot=plot)
+            exp.add_plot(plot, item)
 
     Container:
 
-        constraints = [vbox(conf, hbox(spacer, canc, ok))]
+        constraints = [vbox(hbox(n_lb, n_vl), conf, hbox(spacer, canc, ok))]
+
+        Label: n_lb:
+            text = 'Name'
+        Field: n_vl:
+            pass
 
         Plot1DConfig: conf:
             plot = dial.plot
@@ -64,11 +68,6 @@ enamldef AddPlot1DDialog(Dialog): dial:
         PushButton: ok:
             text = 'Ok'
             clicked ::
-                exp.plots.append(plot)
-                name = _find_new_item_id(area)
-                item = Plot1DItem(area, name=name, plot=plot)
-                area.update_layout(InsertItem(item=name, target='log',
-                                              position='top'))
                 dial.accept()
 
 
@@ -76,7 +75,7 @@ enamldef Plot1DItem(DockItem): main:
     """
     """
     attr plot
-    title = name.capitalize()
+    title << plot.name
     closed ::
         plot.experiment.plots.remove(plot)
 

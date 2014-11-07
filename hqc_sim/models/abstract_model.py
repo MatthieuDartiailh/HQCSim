@@ -3,7 +3,7 @@
 
 """
 import numpy as np
-from atom.api import Float, Property, Bool, Signal, List
+from atom.api import Float, Property, Bool, Signal, List, Str
 
 from ..utils.has_pref_atom import HasPrefAtom
 
@@ -93,7 +93,9 @@ class AbstractModel(HasPrefAtom):
     #: level.
     recomputed = Signal()
 
-    def recompute(self, stage, size):
+    model_class = Str().tag(pref=True)
+
+    def recompute(self, stage=None, size=True):
         """ Recompute some physical quantities.
 
         This method will be called each time the user ask for it of modify
@@ -103,8 +105,8 @@ class AbstractModel(HasPrefAtom):
 
         Parameters
         ----------
-        stage : str
-            Stage of the variable which changed and led to the recompuation
+        stage : str or None
+            Stage of the variable which changed and led to the recomputation
             being triggered it should be used to limitate the number of
             recomputation being performed.
 
@@ -116,3 +118,6 @@ class AbstractModel(HasPrefAtom):
 
         """
         raise NotImplementedError()
+
+    def _default_model_class(self):
+        return self.__class__.__name__

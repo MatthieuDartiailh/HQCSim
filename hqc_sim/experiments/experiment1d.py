@@ -2,29 +2,38 @@
 """
 """
 import logging
+import enaml
+import cPickle
 from atom.api import Dict, Str, Bool, List, Value
+from enaml.layout.api import InsertItem
 
 from ..utils.has_pref_atom import HasPrefAtom, tagged_members
-from ..models.spin_qubit_model import Varying
+from ..models.abstract_model import Varying
+with enaml.imports():
+    from .experiment1d_panel import Experiment1DItem
 
 
 class Experiment1D(HasPrefAtom):
     """
     """
     #: Name of the experiment used for identification purposes.
-    name = Str()
+    name = Str().tag(pref=True)
 
-    #: Object describing the whole physic of the spinqubit.
-    model = Value()
+    #: Reference to the view for which this acts as a controller (needed for
+    #: persistence purposes mainly).
+    view = Value()
+
+    #: Object describing the whole physic of the simulated model.
+    model = Value().tag(pref=True)
 
     # Here store plots.
     plots = List()
 
     # Name of the attribute of the sq model used as x axis.
-    x_axis = Str()
+    x_axis = Str().tag(pref=True)
 
     #: List of the parameters used to manipulate the graph
-    manipulate_vars = Dict()
+    manipulate_vars = Dict().tag(pref=True)
 
     #: Metadata of the different variables as identified from the model.
     vars_meta = Dict()
@@ -35,16 +44,19 @@ class Experiment1D(HasPrefAtom):
     #: Flag indicating whether or not to aumatically update.
     auto_update = Bool()
 
+    #:
+    exp_class = Str().tag(pref=True)
+
     def request_recomputation(self, stage, size=False):
         """
 
         """
-#        try:
-        self.model.recompute(stage)
-#        except Exception as e:
-#            print e
-#            err = 'Exp {} : recomputation failed : {}'.format(self.name, e)
-#            logging.info(err)
+        try:
+            self.model.recompute(stage)
+        except Exception as e:
+            print e
+            err = 'Exp {} : recomputation failed : {}'.format(self.name, e)
+            logging.info(err)
 
     def get_data(self, member_name, indexes):
         """
@@ -60,6 +72,59 @@ class Experiment1D(HasPrefAtom):
                 return getattr(self.model, member_name)[:, i, j]
         else:
             raise NotImplementedError()
+
+    def add_plot(self, plot, view, name=None):
+        """
+        """
+        self.plots.append(plot)
+        if not name:
+            name = self._find_new_item_id()
+            view.name = name
+        view.set_parent(self.view.area)
+        view.parent.update_layout(InsertItem(item=view.name, target='log',
+                                             position='top'))
+
+    def preferences_from_members(self):
+        """
+        """
+        config = super(Experiment1D, self).preferences_from_members()
+        for i, plot in enumerate(self.plots):
+            config['plot_{}'.format(i)] = plot.preferences_from_members()
+
+        layout = self.view.area.save_layout()
+        config['plots_layout'] = cPickle.dumps(layout, 0).decode('latin1')
+
+        return config
+
+    @classmethod
+    def build_experiment(cls, ccenter, name, model, area, config=None):
+        """ Build a new experiment using the provided configuration.
+
+        """
+        exp = Experiment1D(model=model, name=name)
+        exp.view = Experiment1DItem(area, exp=exp, name=name)
+        if config:
+            exp.update_members_from_preferences(config)
+            exp.model.recompute()
+            i = 0
+            while True:
+                aux = 'plot_{}'.format(i)
+                i += 1
+                if aux in config:
+                    plot, view = ccenter.build_plot(config[aux]['plot_class'],
+                                                    exp, config[aux])
+                    exp.add_plot(plot, view)
+                    continue
+                break
+
+            # Currently does not work
+            try:
+                layout = cPickle.loads(config['plots_layout'].encode('latin1'))
+                exp.view.area.apply_layout(layout)
+            except Exception:
+                pass
+
+        return exp
 
     def _post_setattr_model(self, old, new):
         """
@@ -92,6 +157,8 @@ class Experiment1D(HasPrefAtom):
         """
         """
         self.model.varyings = [new]
+        for plot in self.plots:
+            plot.x_axis = self.vars_meta[new]['label']
         if self.auto_update:
             self.request_recomputation('field', True)
 
@@ -107,130 +174,17 @@ class Experiment1D(HasPrefAtom):
                 plot.data.set_data('x', x)
             plot.update_data(stage)
 
+    def _find_new_item_id(self):
+        """
+        """
+        area = self.view.area
+        existing_ids = [item.name for item in area.dock_items()]
+        for i in range(len(existing_ids)):
+            aux = 'item_{}'.format(i)
+            if aux not in existing_ids:
+                return aux
 
-# OUTDATED STUFF (HOPEFULLY)
+        return 'item_{}'.format(len(existing_ids))
 
-# TODO use Y for the name of the data
-# TODO refactor to simply return data
-#def _update_angle(y, model, plot, i):
-#    """
-#    """
-#    if y.endswith('phi'):
-#        if not model.hyste:
-#            plot.data.set_data('y{}'.format(i), model.c_phi)
-#        else:
-#            plot.data.set_data('y{}'.format(i), model.c_phi[0])
-#            plot.data.set_data('y{}d'.format(i), model.c_phi[1])
-#    else:
-#        if not model.hyste:
-#            plot.data.set_data('y{}'.format(i), model.c_theta)
-#        else:
-#            plot.data.set_data('y{}'.format(i), model.c_theta[0])
-#            plot.data.set_data('y{}d'.format(i), model.c_theta[1])
-#
-#
-#def _update_energy(y, model, plot, i):
-#    """
-#    """
-#    i = int(y[1])
-#    if not model.hyste:
-#        plot.data.set_data('y{}'.format(i), model.einenergies[:, i])
-#    else:
-#        plot.data.set_data('y{}'.format(i), model.einenergies[0][:, i])
-#        plot.data.set_data('y{}d'.format(i), model.einenergies[1][:, i])
-#
-#
-#def _update_frequency(y, model, plot, i):
-#    """
-#    """
-#    i = int(y[1])
-#    j = int(y[2])
-#    eine = model.einenergies
-#    if not model.hyste:
-#        plot.data.set_data('y{}'.format(i), eine[:, j] - eine[:, i])
-#    else:
-#        plot.data.set_data('y{}'.format(i), eine[0][:, j] - eine[0][:, i])
-#        plot.data.set_data('y{}d'.format(i), eine[1][:, j] - eine[1][:, i])
-#
-#
-#MAP = {'01': 0, '02': 1, '03': 0, '12': 4, '13': 5, '23': 6}
-#
-#
-#def _update_couplings(y, model, plot, i):
-#    """
-#    """
-#    i = MAP[y[1:]]
-#    if not model.hyste:
-#        plot.data.set_data('y{}'.format(i), model.couplings[:, i])
-#    else:
-#        plot.data.set_data('y{}'.format(i), model.couplings[0][:, i])
-#        plot.data.set_data('y{}d'.format(i), model.couplings[1][:, i])
-#
-#
-#def _update_dephasing(y, model, plot, i):
-#    """
-#    """
-#    i = MAP[y[1:]]
-#    if not model.hyste:
-#        plot.data.set_data('y{}'.format(i), model.dephasing_rates[:, i])
-#    else:
-#        plot.data.set_data('y{}'.format(i), model.couplings[0][:, i])
-#        plot.data.set_data('y{}d'.format(i), model.couplings[1][:, i])
-#
-#
-#def _update_susceptibilities(y, model, plot, i):
-#    """
-#    """
-#    i = MAP[y[1:]]
-#    if not model.hyste:
-#        plot.data.set_data('y{}'.format(i), model.susceptibilities[:, i])
-#    else:
-#        plot.data.set_data('y{}'.format(i), model.susceptibilities[0][:, i])
-#        plot.data.set_data('y{}d'.format(i), model.susceptibilities[1][:, i])
-#
-#
-#HMAP = {'LU': 0, 'LD': 1, 'RU': 2, 'RD': 3}
-#
-#
-#def _update_populations(y, model, plot, i):
-#    """
-#    """
-#    i = int(y[1])
-#    j = HMAP(y[-2:])
-#    einv = model.eigenvectors
-#    if not model.hyste:
-#        plot.data.set_data('y{}'.format(i), einv[:, j, i]**2)
-#    else:
-#        plot.data.set_data('y{}'.format(i), einv[0][:, j, i]**2)
-#        plot.data.set_data('y{}d'.format(i), einv[1][:, j, i]**2)
-#
-#DATA_MAP = {'S': lambda m: m.susceptibilities,
-#            'G': lambda m: m.dephasing_rates,
-#            'C': lambda m: m.couplings}
-#
-#
-#def _update_sum(y, model, plot, i):
-#    """
-#    """
-#    aux = y[4:].split('_')
-#    data = DATA_MAP[aux[0][0]](model)
-#    if not model.hyste:
-#        p_data = np.zeros(data.shape[0])
-#        for a in aux:
-#            p_data += data[:, MAP[aux[1:]]]
-#        plot.data.set_data(y.format(i), p_data)
-#    else:
-#        p_data_i = np.zeros(data[0].shape[0])
-#        p_data_d = np.zeros(data[0].shape[0])
-#        for a in aux:
-#            p_data_i += data[0][:, MAP[aux[1:]]]
-#            p_data_d += data[1][:, MAP[aux[1:]]]
-#        plot.data.set_data(y.format(i), p_data_i)
-#        plot.data.set_data(y + 'd'.format(i), p_data_d)
-#
-#UPDATERS = {'c': _update_angle, 'E': _update_energy,
-#            'F': _update_frequency, 'G': _update_dephasing,
-#            'C': _update_couplings, 'S': _update_susceptibilities,
-#            'P': _update_populations, 's': _update_sum}
-#
-#
+    def _default_exp_class(self):
+        return self.__class__.__name__

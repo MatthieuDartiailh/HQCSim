@@ -95,11 +95,12 @@ def _create_manipulate_uis(exp, manipulate_vars):
 enamldef Experiment1DItem(DockItem): main:
 
     attr exp
+    alias area
     title = name.capitalize()
 
     Container:
 
-        constraints = [hbox(vbox(auto, x_ax, man, ed, gr, re), plt_area)]
+        constraints = [hbox(vbox(auto, x_ax, man, ed, gr, re), area)]
 
         CheckBox: auto:
             text = 'Auto-recompute'
@@ -138,12 +139,12 @@ enamldef Experiment1DItem(DockItem): main:
         PushButton: gr:
             text = 'Add graph'
             clicked ::
-                AddPlot1DDialog(self, exp=exp, area=plt_area).exec_()
+                AddPlot1DDialog(self, exp=exp, area=area).exec_()
 
         PushButton: re:
             text = 'Recompute'
             clicked ::
                 exp.request_recomputation(stage='field')
 
-        DockArea: plt_area:
+        DockArea: area:
             pass

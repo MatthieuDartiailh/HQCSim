@@ -5,6 +5,7 @@ Created on Thu Oct 30 18:36:06 2014
 @author: dartiailh
 """
 import enaml
+import numba
 from enaml.qt.qt_application import QtApplication
 
 from hqc_sim.control_center import ControlCenter
