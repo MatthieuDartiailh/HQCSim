@@ -39,23 +39,23 @@ class ControlCenter(Atom):
         """
         """
         conf = ConfigObj(path, default_encoding='utf8')
-#        try:
-        models = {v[0]: v[1] for v in M_FACTORIES.values()}
-        model = models[conf['model']['model_class']]()
-        exp_class = [e for e in EXPERIMENTS
-                     if e.__name__ == conf['exp_class']][0]
-        name = conf.pop('name')
-        if name in [e.name for e in self.running_exps]:
-            name = self.default_exp_name()
-        exp = exp_class.build_experiment(self, name, model,
-                                         area, conf)
+        try:
+            models = {v[0]: v[1] for v in M_FACTORIES.values()}
+            model = models[conf['model']['model_class']]()
+            exp_class = [e for e in EXPERIMENTS
+                         if e.__name__ == conf['exp_class']][0]
+            name = conf.pop('name')
+            if name in [e.name for e in self.running_exps]:
+                name = self.default_exp_name()
+            exp = exp_class.build_experiment(self, name, model,
+                                             area, conf)
 
-        self.running_exps.append(exp)
-        return exp, exp.view
+            self.running_exps.append(exp)
+            return exp, exp.view
 
-#        except Exception as e:
-#            print e
-#            return None, None
+        except Exception as e:
+            print e
+            return None, None
 
     def destroy_experiment(self, exp):
         """

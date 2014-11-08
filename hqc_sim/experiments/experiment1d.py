@@ -51,12 +51,12 @@ class Experiment1D(HasPrefAtom):
         """
 
         """
-        try:
-            self.model.recompute(stage)
-        except Exception as e:
-            print e
-            err = 'Exp {} : recomputation failed : {}'.format(self.name, e)
-            logging.info(err)
+#        try:
+        self.model.recompute(stage)
+#        except Exception as e:
+#            print e
+#            err = 'Exp {} : recomputation failed : {}'.format(self.name, e)
+#            logging.info(err)
 
     def get_data(self, member_name, indexes):
         """
@@ -77,6 +77,7 @@ class Experiment1D(HasPrefAtom):
         """
         """
         self.plots.append(plot)
+        plot.x_axis = self.x_axis
         if not name:
             name = self._find_new_item_id()
             view.name = name
@@ -150,7 +151,8 @@ class Experiment1D(HasPrefAtom):
                                    {'m_name': k,
                                     'symbol': m.metadata.get('symbol', k),
                                     'dim': m.metadata['dim'],
-                                    'map': m.metadata.get('map')}
+                                    'map': m.metadata.get('map'),
+                                    'dtype': m.metadata.get('dtype', 'float')}
                                    for k, m in plt_d.iteritems()}
 
     def _post_setattr_x_axis(self, old, new):

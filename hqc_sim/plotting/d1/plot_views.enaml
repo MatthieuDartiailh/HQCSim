@@ -58,14 +58,17 @@ enamldef AddPlot1DDialog(Dialog): dial:
             pass
 
         Plot1DConfig: conf:
+            hug_width = 'ignore'
             plot = dial.plot
 
         PushButton: canc:
+            hug_width = 'strong'
             text = 'Cancel'
             clicked ::
                 dial.reject()
 
         PushButton: ok:
+            hug_width = 'strong'
             text = 'Ok'
             clicked ::
                 dial.accept()
