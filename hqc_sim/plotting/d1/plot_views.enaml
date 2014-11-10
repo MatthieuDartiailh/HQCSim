@@ -86,7 +86,11 @@ enamldef Plot1DItem(DockItem): main:
         Notebook:
             size_hint_mode = 'current'
             tabs_closable = False
+            selected_tab ::
+               if change['value'] == 'gr':
+                   plot.update_data('')
             Page:
+                name = 'gr'
                 title = 'Graph'
                 Container:
                     EnableCanvas:

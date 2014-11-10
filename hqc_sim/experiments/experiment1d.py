@@ -3,6 +3,7 @@
 """
 import logging
 import enaml
+import numpy as np
 import cPickle
 from atom.api import Dict, Str, Bool, List, Value
 from enaml.layout.api import InsertItem
@@ -61,6 +62,8 @@ class Experiment1D(HasPrefAtom):
     def get_data(self, member_name, indexes):
         """
         """
+        if not self.model.initialized:
+            return np.array([])
         if not self.model.hyste:
             if len(indexes) == 1:
                 i, = indexes

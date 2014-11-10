@@ -93,6 +93,10 @@ class AbstractModel(HasPrefAtom):
     #: level.
     recomputed = Signal()
 
+    #: Flag indicating whether model compuatation already occurred. This should
+    #: be set in the recompute method.
+    initialized = Bool()
+
     model_class = Str().tag(pref=True)
 
     def recompute(self, stage=None, size=True):

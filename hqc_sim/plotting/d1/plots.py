@@ -122,6 +122,12 @@ class Plot1D(HasPrefAtom):
         """
         """
         exp = self.experiment
+        # First we clean the old graphs
+        self.renderer.delplot(*[c.id for c in removed])
+        for r in removed:
+            self.data.del_data(r.id)
+
+        # Then we add new ones (this avoids messibng up when replacing a graph)
         for a in added:
             y_data = a.gather_data(exp)
             name = a.id
@@ -129,14 +135,10 @@ class Plot1D(HasPrefAtom):
             self.renderer.plot(('x', name), name=name, type=a.type,
                                color=a.color)
 
-        self.renderer.delplot(*[c.id for c in removed])
-        for r in removed:
-            self.data.del_data(r.id)
-
     def _post_setattr_x_axis(self, old, new):
         """
         """
-        self.renderer.x_label = new
+        self.renderer.x_axis.title = new
 
     def _default_plot_class(self):
         return self.__class__.__name__
