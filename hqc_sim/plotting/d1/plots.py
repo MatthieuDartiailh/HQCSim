@@ -2,11 +2,11 @@
 """
 """
 import enaml
-from chaco.api import Plot, ArrayPlotData
-from atom.api import (Typed, List, ForwardTyped, Str)
+from chaco.api import Plot
+from atom.api import (List, Str)
 
 from ...utils.has_pref_atom import HasPrefAtom
-from .curves import AbstractCurve1DInfos, CURVE_INFOS
+from .curves import CURVE_INFOS
 with enaml.imports():
     from .plot_views import Plot1DItem
 
@@ -19,45 +19,26 @@ def exp1d():
 class Plot1D(HasPrefAtom):
     """
     """
-    #: Name identifying this plot.
-    name = Str().tag(pref=True)
-
-    #: Reference to the experiment managing this plot.
-    experiment = ForwardTyped(exp1d)
-
-    #: Data actually driving the plot.
-    data = Typed(ArrayPlotData, ())
-
-    #: Chaco component doing the heavy work.
-    renderer = Typed(Plot, ())
-
     #: Name of the x axis used for labelling the plot.
     x_axis = Str()
 
     #: Infos caracterising the plotted data.
     #: Should not be manipulated by user code.
-    y_infos = List(AbstractCurve1DInfos)
-
-    #: Name of the class used for persistence purposes.
-    plot_class = Str().tag(pref=True)
+    y_infos = List()
 
     def __init__(self, **kwargs):
         super(Plot1D, self).__init__(**kwargs)
+        self.renderer = Plot()
         self.renderer.data = self.data
         exp = self.experiment
         self.data.set_data('x', getattr(exp.model, exp.x_axis).linspace)
         # Add basic tools and ways to activate them in public API
 
     @classmethod
-    def build_plot(cls, exp, config=None):
+    def build_view(cls, plot):
         """
         """
-        plot = cls(experiment=exp)
-        if config:
-            plot.update_members_from_preferences(config)
-        view = Plot1DItem(plot=plot)
-
-        return plot, view
+        return Plot1DItem(plot=plot)
 
     def add_curves(self, curves):
         """
@@ -93,7 +74,7 @@ class Plot1D(HasPrefAtom):
         """
         """
         d = super(Plot1D, self).preferences_from_members()
-        for i, c in enumerate(self.y_infos):
+        for i, c in enumerate(self.infos):
             d['curve_{}'.format(i)] = c.preferences_from_members()
 
         return d
@@ -127,7 +108,7 @@ class Plot1D(HasPrefAtom):
         for r in removed:
             self.data.del_data(r.id)
 
-        # Then we add new ones (this avoids messibng up when replacing a graph)
+        # Then we add new ones (this avoids messing up when replacing a graph)
         for a in added:
             y_data = a.gather_data(exp)
             name = a.id
@@ -140,5 +121,5 @@ class Plot1D(HasPrefAtom):
         """
         self.renderer.x_axis.title = new
 
-    def _default_plot_class(self):
-        return self.__class__.__name__
+    def _default_renderer(self):
+        return Plot()

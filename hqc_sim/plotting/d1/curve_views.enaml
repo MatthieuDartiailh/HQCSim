@@ -1,15 +1,12 @@
 # -*- coding: utf-8 -*-
 """
 """
-from operator import itemgetter
-from enaml.core.api import Looper, Conditional
-from enaml.widgets.api import (DockItem, Container, Menu, Action, Dialog,
-                               PushButton, ToolBar, Action, Notebook, Page,
-                               ObjectCombo, RadioButton, Label, CheckBox,
-                               FlowArea, FlowItem)
+from enaml.widgets.api import (Container, PushButton, ObjectCombo, Label)
 from enaml.stdlib.mapped_view import MappedView
-from enaml.layout.api import InsertItem, hbox, vbox, spacer, grid, factory
+from enaml.layout.api import hbox, vbox, spacer
+
 from ...utils.ui.qt_list_str_widget import QtListStrWidget
+from ..data_views import SimpleInfoConfig, SumInfoConfig
 from .curves import SimpleCurve1DInfos, SumCurve1DInfos, CURVE_INFOS
 
 
@@ -23,143 +20,22 @@ enamldef AbstractCurveConfig(Container):
     # TODO later
 
 
-def _sc_constraints(container, wrap=3):
-    """
-    """
-    widgets = container.visible_widgets()
-    return [vbox(grid(*[widgets[i:i+wrap] for i in range(0, len(widgets),
-                                                         wrap)]))]
-
-def _plottable_(plottable_data):
-    """ Build a list of pair used to build the curve view.
-
-    It duplicates the entries for complex between Re and imaginary parts.
-
-    """
-    items = []
-    for name, meta in plottable_data.items():
-        if meta['dtype'] == 'float':
-            items.append((name, meta))
-        else:
-            real = meta.copy()
-            real['dtype'] = 'real'
-            imag = meta.copy()
-            imag['dtype'] = 'imag'
-            items.extend([('Re({})'.format(name), real),
-                          ('Im({})'.format(name), imag)])
-    return sorted(items, key=itemgetter(0))
-
 enamldef SimpleCurveConfig(AbstractCurveConfig): main:
     """
     """
-    attr _data
-
-    initialized ::
-        if curve.m_name:
-            for p in plot.experiment.plottable_data.values():
-                if curve.m_name == p['m_name']:
-                    main._data = p
-                    break
-    FlowArea:
-        Looper: lp:
-            iterable << _plottable_(plot.experiment.plottable_data)
-            FlowItem:
-                Container:
-                    padding = 0
-                    RadioButton:
-                        text = loop_item[0]
-                        checked << bool(curve.m_name == loop_item[1]['m_name']
-                                        and
-                                        curve.part == loop_item[1]['dtype'])
-                        toggled ::
-                            curve.m_name = loop_item[1]['m_name']
-                            curve.indexes = tuple(0 for i in
-                                                  range(loop_item[1]['dim']))
-                            curve.part = loop_item[1]['dtype']
-                            main._data = loop_item[1]
-
-    Conditional: cd1:
-        condition << bool(_data and _data['dim'] == 1)
-        FlowArea:
-            Looper: lp1:
-                iterable << _data['map']
-                FlowItem:
-                    Container:
-                        padding = 0
-                        RadioButton:
-                            text = loop_item
-                            checked << curve.indexes[0] == loop_index
-                            toggled :: curve.indexes = (loop_index,)
-
-    # XXXX need fixes (nested Looper does not work)
-    Conditional: cd2:
-        condition << bool(_data and _data['dim'] == 2)
-        Looper:
-            iterable << _data['map']
-            Container:
-                attr it = loop_item
-                attr ind = loop_index
-                Looper: lp2:
-                    iterable << it
-                    RadioButton:
-                        text = loop_item
-                        checked << curve.indexes[ind] == loop_index
-                        toggled ::
-                            aux = list(curve.indexes)
-                            aux[ind] = loop_index
-                            curve.indexes = tuple(aux)
+    SimpleInfoConfig:
+        padding = 0
+        info = curve
+        exp = plot.experiment
 
 
 enamldef SumCurveConfig(AbstractCurveConfig): main:
     """
     """
-    attr _data
-
-    initialized ::
-        if curve.m_name:
-            for p in plot.experiment.plottable_data.values():
-                if curve.m_name == p['m_name']:
-                    main._data = p
-                    break
-    FlowArea:
-        Looper: lp:
-            iterable << _plottable_(plot.experiment.plottable_data)
-            FlowItem:
-                Container:
-                    padding = 0
-                    RadioButton:
-                        text = loop_item[0]
-                        checked << bool(curve.m_name == loop_item[1]['m_name']
-                                        and
-                                        curve.part == loop_item[1]['dtype'])
-                        toggled ::
-                            curve.m_name = loop_item[1]['m_name']
-                            curve.indexes = [tuple(0 for i in
-                                                  range(loop_item[1]['dim']))]
-                            curve.part = loop_item[1]['dtype']
-                            main._data = loop_item[1]
-
-    Conditional: cd1:
-        condition << bool(_data and _data['dim'] == 1)
-        FlowArea:
-            Looper: lp1:
-                iterable << _data['map']
-                FlowItem:
-                    Container:
-                        padding = 0
-                        CheckBox:
-                            text = loop_item
-                            checked << bool((loop_index,) in curve.indexes)
-                            toggled ::
-                                if change['value']:
-                                    aux = curve.indexes[:]
-                                    aux.append((loop_index,))
-                                    curve.indexes = aux
-                                else:
-                                    aux = curve.indexes[:]
-                                    if (loop_index,) in aux:
-                                        aux.remove((loop_index,))
-                                    curve.indexes = aux
+    SumInfoConfig:
+        padding = 0
+        info = curve
+        exp = plot.experiment
 
 
 CURVE_CONFIG_MAP = {SimpleCurve1DInfos: SimpleCurveConfig,

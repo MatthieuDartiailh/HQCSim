@@ -1,0 +1,124 @@
+# -*- coding: utf-8 -*-
+"""
+"""
+from enaml.core.api import Looper, Conditional
+from enaml.widgets.api import (DockItem, Container, Menu, Action, Dialog,
+                               PushButton, ToolBar, Action, Notebook, Page,
+                               ObjectCombo, RadioButton, Label, Field)
+from enaml.stdlib.mapped_view import MappedView
+from enaml.layout.api import InsertItem, hbox, vbox, spacer, grid, factory
+import traits_enaml
+with traits_enaml.imports():
+    from traits_enaml.widgets.enable_canvas import EnableCanvas
+
+from ..data_views import INFO_CONFIG_MAP
+from ..data_infos import DATA_INFOS
+
+
+def _factory(exp):
+    from .plot2d import Plot2D
+    return Plot2D(experiment=exp)
+
+
+enamldef Plot2DConfig(Notebook): main:
+    """ Main widget to edit the content of a plot.
+
+    """
+    attr plot
+    tabs_closable = False
+
+    Page:
+        title = 'Data'
+        Container:
+            ObjectCombo: c_info:
+                # Allow to change the kind of plotted data
+                items = sorted(DATA_INFOS.values())
+                selected << DATA_INFOS[type(plot.c_info)] \
+                    if plot.c_info else None
+                selected ::
+                    for c in DATA_INFOS:
+                        if DATA_INFOS[c] == selected \
+                                and type(plot.c_info) != c:
+                            plot.c_info = c(id='data')
+                            break
+
+            MappedView: c_map:
+                # View associated to the currently selected curve.
+                model << plot.c_info
+                typemap = INFO_CONFIG_MAP
+                kwargs = {'exp': plot.experiment}
+                modelkey = 'info'
+
+    # Here could go things as axis formatting and stuff
+#    Page:
+
+
+enamldef AddPlot2DDialog(Dialog): dial:
+    """
+    """
+    attr exp
+    attr area
+    attr plot << _factory(exp)
+    title = 'Parametrize your new plot'
+    closed ::
+        if dial.result:
+            item = Plot2DItem(plot=plot)
+            exp.add_plot(plot, item)
+
+    Container:
+
+        constraints = [vbox(hbox(n_lb, n_vl), conf, hbox(spacer, canc, ok))]
+
+        Label: n_lb:
+            text = 'Name'
+        Field: n_vl:
+            pass
+
+        Plot2DConfig: conf:
+            hug_width = 'ignore'
+            plot = dial.plot
+
+        PushButton: canc:
+            hug_width = 'strong'
+            text = 'Cancel'
+            clicked ::
+                dial.reject()
+
+        PushButton: ok:
+            hug_width = 'strong'
+            text = 'Ok'
+            clicked ::
+                dial.accept()
+
+
+enamldef Plot2DItem(DockItem): main:
+    """
+    """
+    attr plot
+    title << plot.name
+    closed ::
+        plot.experiment.plots.remove(plot)
+
+    Container:
+        Notebook:
+            size_hint_mode = 'current'
+            tabs_closable = False
+            selected_tab ::
+               if change['value'] == 'gr':
+                   plot.update_data('')
+            Page:
+                name = 'gr'
+                title = 'Graph'
+                Container:
+                    EnableCanvas: can:
+                        component << plot.container
+
+                    ObjectCombo:
+                        items << list(plot.get_member('colormap').items)
+                        selected := plot.colormap
+
+            Page:
+                title = 'Config'
+                Container:
+                    Plot2DConfig:
+                        plot = main.plot

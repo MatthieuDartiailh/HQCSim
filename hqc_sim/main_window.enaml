@@ -48,12 +48,12 @@ enamldef ExpCreationDialog(Dialog): dial:
         Label: e_lab:
             text = 'Experiment'
         ObjectCombo: e_val:
-            items = model.experiments.keys()
+            items = sorted(model.experiments.keys())
 
         Label: m_lab:
             text = 'Model'
         ObjectCombo: m_val:
-            items = model.models
+            items = sorted(model.models)
 
         PushButton: canc:
             text = 'Cancel'
@@ -94,6 +94,8 @@ enamldef HQCSimWindow(MainWindow): main:
                         triggered ::
                             path = save_file_dialog(main,
                                                     name_filters=['*.ini'])
+                            if not path.endswith('.ini'):
+                                path += '.ini'
                             if path:
                                 model.save_experiment(path, loop_item)
 

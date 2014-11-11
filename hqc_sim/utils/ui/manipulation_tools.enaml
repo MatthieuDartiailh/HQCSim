@@ -43,8 +43,9 @@ enamldef FloatSlider(Container):
             maximum << fi.value + exp.manipulate_vars[attr_name]
             precision = 1000
 
-    FloatField:
+    FloatField: va:
         read_only = True
+        value = fi.value
 
 enamldef FloatVaryingSlider(Container): main:
     """
@@ -84,6 +85,7 @@ enamldef FloatVaryingSlider(Container): main:
 
     FloatField: va:
         read_only = True
+        value = _varying.value
 
 enamldef LinspaceVaryingEditor(Container):
     """

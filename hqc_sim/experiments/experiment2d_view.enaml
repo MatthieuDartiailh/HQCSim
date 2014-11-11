@@ -14,7 +14,7 @@ from ..utils.ui.manipulation_tools import (FloatSlider, FloatVaryingSlider,
                                            LinspaceVaryingEditor)
 from ..utils.ui.config_tools import (FloatVaryingField, VaryingConfig,
                                      FloatConfig)
-from ..plotting.d1.plot_views import AddPlot1DDialog
+from ..plotting.d2.plot2d_views import AddPlot2DDialog
 
 
 def _def_range(exp, m, member):
@@ -60,7 +60,7 @@ def _constraints(container, col_len=8):
     return constraints
 
 
-enamldef Experiment1DConfig(Dialog): di:
+enamldef Experiment2DConfig(Dialog): di:
 
     attr exp
 
@@ -94,7 +94,7 @@ def _create_manipulate_uis(exp, manipulate_vars):
     return uis
 
 
-enamldef Experiment1DItem(DockItem): main:
+enamldef Experiment2DItem(DockItem): main:
 
     attr exp
     alias area
@@ -102,7 +102,7 @@ enamldef Experiment1DItem(DockItem): main:
 
     Container:
 
-        constraints = [hbox(vbox(auto, x_ax, man, ed, gr, re), area)]
+        constraints = [hbox(vbox(auto, x_ax, y_ax, man, ed, gr, re), area)]
 
         CheckBox: auto:
             text = 'Auto-recompute'
@@ -125,6 +125,23 @@ enamldef Experiment1DItem(DockItem): main:
                 exp << main.exp
                 attr_name << exp.x_axis
 
+        GroupBox: y_ax:
+            title = 'Y axis'
+            ObjectCombo:
+                items = sorted([exp.vars_meta[s]['label']
+                                for s in exp.vars_meta
+                                if exp.vars_meta[s]['varying']])
+                selected << exp.vars_meta[exp.y_axis]['label']
+                selected ::
+                    for s in exp.vars_meta:
+                        if exp.vars_meta[s]['label'] == selected:
+                            exp.y_axis = s
+                            break
+
+            LinspaceVaryingEditor:
+                exp << main.exp
+                attr_name << exp.y_axis
+
         ScrollArea: man:
             Container:
                 Include: incl_man:
@@ -134,14 +151,14 @@ enamldef Experiment1DItem(DockItem): main:
         PushButton: ed:
             text = 'Edit'
             clicked ::
-                Experiment1DConfig(self, exp=exp).exec_()
+                Experiment2DConfig(self, exp=exp).exec_()
                 for m in incl_man.objects:
                     m.refresh = True
 
         PushButton: gr:
             text = 'Add graph'
             clicked ::
-                AddPlot1DDialog(self, exp=exp, area=area).exec_()
+                AddPlot2DDialog(self, exp=exp, area=area).exec_()
 
         PushButton: re:
             text = 'Recompute'
