@@ -91,7 +91,7 @@ class Plot1D(BasePlot):
             if aux in config:
                 c_config = config[aux]
                 curve = [c for c in CURVE_INFOS
-                         if c.__name__ == c_config['curve_class']][0]()
+                         if c.__name__ == c_config['info_class']][0]()
                 curve.update_members_from_preferences(c_config)
                 infos.append(curve)
                 continue
