@@ -8,7 +8,7 @@ import enaml
 import numba
 import logging
 import datetime
-import sys
+import sys, os
 from enaml.qt.qt_application import QtApplication
 
 from hqc_sim.control_center import ControlCenter
@@ -37,6 +37,8 @@ class StderrToLogger(object):
         pass
 
 if __name__ == '__main__':
+    if not os.path.isdir('logs'):
+        os.mkdir('logs')
     time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     filename = 'logs/hqc_sim{}.log'.format(time)
     f = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
