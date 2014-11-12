@@ -21,12 +21,13 @@ class Experiment1D(BaseExperiment):
         """
 
         """
-#        try:
-        self.model.recompute(stage)
-#        except Exception as e:
-#            print e
-#            err = 'Exp {} : recomputation failed : {}'.format(self.name, e)
-#            logging.info(err)
+        try:
+            self.model.recompute(stage)
+        except Exception as e:
+            print e
+            err = 'Exp {} : recomputation failed : {}'.format(self.name, e)
+            logging.info(err)
+            print err
 
     def get_data(self, member_name, indexes):
         """

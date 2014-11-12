@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 """
+import logging
 import enaml
 import numpy as np
 from atom.api import Str
@@ -23,12 +24,13 @@ class Experiment2D(BaseExperiment):
         """
 
         """
-#        try:
-        self.model.recompute(stage)
-#        except Exception as e:
-#            print e
-#            err = 'Exp {} : recomputation failed : {}'.format(self.name, e)
-#            logging.info(err)
+        try:
+            self.model.recompute(stage)
+        except Exception as e:
+            print e
+            err = 'Exp {} : recomputation failed : {}'.format(self.name, e)
+            logging.info(err)
+            print
 
     def get_data(self, member_name, indexes):
         """
