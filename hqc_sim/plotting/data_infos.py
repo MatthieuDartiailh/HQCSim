@@ -13,14 +13,14 @@ class AbstractInfo(HasPrefAtom):
     """
     id = Unicode().tag(pref=True)
 
-    infos_class = Str().tag(pref=True)
+    info_class = Str().tag(pref=True)
 
     def gather_data(self, experiment):
         """
         """
         raise NotImplementedError()
 
-    def _default_curve_class(self):
+    def _default_info_class(self):
         return self.__class__.__name__
 
 
