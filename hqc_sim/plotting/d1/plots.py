@@ -74,7 +74,7 @@ class Plot1D(BasePlot):
         """
         """
         d = super(Plot1D, self).preferences_from_members()
-        for i, c in enumerate(self.infos):
+        for i, c in enumerate(self.y_infos):
             d['curve_{}'.format(i)] = c.preferences_from_members()
 
         return d

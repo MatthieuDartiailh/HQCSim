@@ -37,7 +37,8 @@ class StderrToLogger(object):
         pass
 
 if __name__ == '__main__':
-    filename = 'logs/hqc_sim{}.log'.format(datetime.datetime.now())
+    time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    filename = 'logs/hqc_sim{}.log'.format(time)
     f = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     logging.basicConfig(filename=filename, level=logging.DEBUG,
                         format=f)
@@ -56,7 +57,7 @@ if __name__ == '__main__':
     sl = StderrToLogger(stderr_logger, logging.ERROR)
     sys.stderr = sl
 
-    logging.captureWarnings()
+    logging.captureWarnings(True)
 
     logging.info('Logger parametrized')
 
