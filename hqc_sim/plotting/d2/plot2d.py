@@ -104,7 +104,9 @@ class Plot2D(BasePlot):
         exp = self.experiment
         if self.c_info:
             data = self.c_info.gather_data(exp)
-            self.data.set_data('c', data)
+            if len(data.shape) == 2:
+                self.data.set_data('c', data)
+                self.update_plots_index()
 
     def update_plots_index(self):
         if 'c' in self.data.list_data():
@@ -143,9 +145,10 @@ class Plot2D(BasePlot):
         c_config = config['c_info']
         info = [c for c in DATA_INFOS
                 if c.__name__ == c_config['info_class']][0]()
+        info.update_members_from_preferences(c_config)
 
-#        self.c_info = info
-#        self.update_data(None)
+        self.c_info = info
+        self.update_data(None)
 
     def _post_setattr_x_axis(self, old, new):
         self.renderer.x_axis.title = new
