@@ -27,10 +27,9 @@ class Experiment2D(BaseExperiment):
         try:
             self.model.recompute(stage)
         except Exception as e:
-            print e
             err = 'Exp {} : recomputation failed : {}'.format(self.name, e)
-            logging.info(err)
-            print
+            logger = logging.getLogger(__name__)
+            logger.error(err)
 
     def get_data(self, member_name, indexes):
         """
