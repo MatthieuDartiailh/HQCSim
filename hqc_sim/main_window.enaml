@@ -2,13 +2,14 @@
 """
 """
 from atom.api import List
+from enaml.application import timed_call
 from enaml.validator import Validator
 from enaml.core.api import Looper
 from enaml.layout.api import grid, vbox, spacer, InsertItem, hbox
 from enaml.widgets.api import (MainWindow, MenuBar, Menu, Action, DockArea,
                                Container, Dialog, Label, Field, ObjectCombo,
                                PushButton, FileDialogEx)
-
+from enaml.widgets.dock_events import DockItemEvent
 open_file_dialog = FileDialogEx.get_open_file_name
 save_file_dialog = FileDialogEx.get_save_file_name
 
@@ -66,6 +67,11 @@ enamldef ExpCreationDialog(Dialog): dial:
                 dial.accept()
 
 
+def load_exp(model, area, path):
+    exp, _ = model.load_experiment(path, area)
+    if exp:
+        area.update_layout(InsertItem(item=exp.name))
+
 enamldef HQCSimWindow(MainWindow): main:
     """
     """
@@ -105,9 +111,12 @@ enamldef HQCSimWindow(MainWindow): main:
 
                     path = open_file_dialog(main, name_filters=['*.ini'])
                     if path:
-                        exp, _ = model.load_experiment(path, area)
-                        if exp:
-                            area.update_layout(InsertItem(item=exp.name))
+                        timed_call(100, load_exp, model, area, path)
     Container:
         DockArea: area:
-            pass
+            dock_events_enabled = True
+            dock_event ::
+                ev = change['value']
+                if ev.type == DockItemEvent.Closed:
+                    exp = area.find(ev.name).exp
+                    model.destroy_experiment(exp)
