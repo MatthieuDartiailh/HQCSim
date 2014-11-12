@@ -5,7 +5,7 @@ import enaml
 from chaco.api import Plot
 from atom.api import (List, Str)
 
-from ...utils.has_pref_atom import HasPrefAtom
+from ..base_plot import BasePlot
 from .curves import CURVE_INFOS
 with enaml.imports():
     from .plot_views import Plot1DItem
@@ -16,7 +16,7 @@ def exp1d():
     return Experiment1D
 
 
-class Plot1D(HasPrefAtom):
+class Plot1D(BasePlot):
     """
     """
     #: Name of the x axis used for labelling the plot.

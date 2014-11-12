@@ -75,7 +75,7 @@ enamldef FloatConfig(Container): cont:
         checked << var_name in exp.manipulate_vars
         tool_tip = cont.tool_tip
         toggled ::
-            if change['value']:
+            if not change['value']:
                 aux = exp.manipulate_vars.copy()
                 del aux[var_name]
                 exp.manipulate_vars = aux

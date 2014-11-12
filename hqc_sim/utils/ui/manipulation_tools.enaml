@@ -39,8 +39,8 @@ enamldef FloatSlider(Container):
                 setattr(exp.model, attr_name, changed['value'])
                 if exp.auto_update:
                     exp.request_recomputation(stage)
-            minimum << fi.value - exp.manipulate_vars[attr_name]
-            maximum << fi.value + exp.manipulate_vars[attr_name]
+            minimum << fi.value - exp.manipulate_vars.get(attr_name, 1)
+            maximum << fi.value + exp.manipulate_vars.get(attr_name, 1)
             precision = 1000
 
     FloatField: va:
@@ -79,8 +79,8 @@ enamldef FloatVaryingSlider(Container): main:
                 _varying.value = change['value']
                 if exp.auto_update:
                     exp.request_recomputation(stage)
-            minimum << fi.value - exp.manipulate_vars[attr_name]
-            maximum << fi.value + exp.manipulate_vars[attr_name]
+            minimum << fi.value - exp.manipulate_vars.get(attr_name, 1)
+            maximum << fi.value + exp.manipulate_vars.get(attr_name, 1)
             precision = 1000
 
     FloatField: va:
