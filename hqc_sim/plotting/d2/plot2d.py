@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 """
+import enaml
 from atom.api import (Typed, Str, Enum, Value, Float)
 from chaco.api\
     import (ColorBar, LinearMapper, HPlotContainer,
@@ -14,8 +15,10 @@ from chaco.default_colormaps import color_map_name_dict, Greys
 from numpy import cosh, exp, linspace, meshgrid, tanh
 
 from ..base_plot import BasePlot
-from ..data_infos import AbstractInfo
+from ..data_infos import AbstractInfo, DATA_INFOS
 from .chaco_renderer import ChacoPlot2D
+with enaml.imports():
+    from .plot2d_views import Plot2DItem
 
 
 class Plot2D(BasePlot):
@@ -118,6 +121,31 @@ class Plot2D(BasePlot):
                     plot.index = GridDataSource(xs, ys,
                                                 sort_order=('ascending',
                                                             'ascending'))
+
+    @classmethod
+    def build_view(cls, plot):
+        """
+        """
+        return Plot2DItem(plot=plot)
+
+    def preferences_from_members(self):
+        """
+        """
+        d = super(Plot2D, self).preferences_from_members()
+        d['c_info'] = self.c_info.preferences_from_members()
+
+        return d
+
+    def update_members_from_preferences(self, config):
+        """
+        """
+        super(Plot2D, self).update_members_from_preferences(config)
+        c_config = config['c_info']
+        info = [c for c in DATA_INFOS
+                if c.__name__ == c_config['info_class']][0]()
+
+#        self.c_info = info
+#        self.update_data(None)
 
     def _post_setattr_x_axis(self, old, new):
         self.renderer.x_axis.title = new
