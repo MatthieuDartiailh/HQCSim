@@ -22,9 +22,9 @@ from chaco.default_colormaps import Spectral
 
 class ChacoPlot2D(DataView):
 
-    #------------------------------------------------------------------------
+    # -----------------------------------------------------------------------
     # Data-related traits
-    #------------------------------------------------------------------------
+    # -----------------------------------------------------------------------
 
     # The PlotData instance that drives this plot.
     data = Instance(AbstractPlotData)
@@ -32,9 +32,9 @@ class ChacoPlot2D(DataView):
     # Mapping of data names from self.data to their respective datasources.
     datasources = Dict(Str, Instance(AbstractDataSource))
 
-    #------------------------------------------------------------------------
+    # -----------------------------------------------------------------------
     # General plotting traits
-    #------------------------------------------------------------------------
+    # -----------------------------------------------------------------------
 
     # Mapping of plot names to *lists* of plot renderers.
     plots = Dict(Str, List)
@@ -54,9 +54,9 @@ class ChacoPlot2D(DataView):
                              contour_poly_plot=ContourPolyPlot,
                              ))
 
-    #------------------------------------------------------------------------
+    # -----------------------------------------------------------------------
     # Annotations and decorations
-    #------------------------------------------------------------------------
+    # -----------------------------------------------------------------------
 
     # The legend on the plot.
     legend = Instance(Legend)
@@ -64,9 +64,9 @@ class ChacoPlot2D(DataView):
     # Convenience attribute for legend.align; can be "ur", "ul", "ll", "lr".
     legend_alignment = Property
 
-    #------------------------------------------------------------------------
+    # -----------------------------------------------------------------------
     # Public methods
-    #------------------------------------------------------------------------
+    # -----------------------------------------------------------------------
 
     def __init__(self, data=None, **kwtraits):
         if 'origin' in kwtraits:
@@ -297,7 +297,7 @@ class ChacoPlot2D(DataView):
 
         array_data = value_ds.get_data()
 
-        #~ # process bounds to get linspaces
+        # process bounds to get linspaces
         if isinstance(xbounds, basestring):
             xbounds = self._get_or_create_datasource(xbounds).get_data()
 
@@ -384,9 +384,9 @@ class ChacoPlot2D(DataView):
             renderer.visible = True
         return
 
-    #------------------------------------------------------------------------
+    # -----------------------------------------------------------------------
     # Private methods
-    #------------------------------------------------------------------------
+    # -----------------------------------------------------------------------
 
     def _make_new_plot_name(self):
         """ Returns a string that is not already used as a plot title.
@@ -436,9 +436,9 @@ class ChacoPlot2D(DataView):
 
         return self.datasources[name]
 
-    #------------------------------------------------------------------------
+    # -----------------------------------------------------------------------
     # Event handlers
-    #------------------------------------------------------------------------
+    # -----------------------------------------------------------------------
 
     def _color_mapper_changed(self):
         for plist in self.plots.values():
@@ -495,9 +495,9 @@ class ChacoPlot2D(DataView):
             if hasattr(renderer, range_name):
                 setattr(renderer, range_name, new)
 
-    #------------------------------------------------------------------------
+    # -----------------------------------------------------------------------
     # Property getters and setters
-    #------------------------------------------------------------------------
+    # -----------------------------------------------------------------------
 
     def _set_legend_alignment(self, align):
         if self.legend:

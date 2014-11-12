@@ -52,9 +52,9 @@ class Plot2D(BasePlot):
         super(Plot2D, self).__init__(**kwargs)
 
         self.renderer = ChacoPlot2D(self.data)
-#        self.renderer.padding = (80, 50, 10, 40)
+        self.renderer.padding = (80, 50, 10, 40)
 
-        #Dummy plot so that the color bar can be correctly initialized
+        # Dummy plot so that the color bar can be correctly initialized
         xs = linspace(-2, 2, 600)
         ys = linspace(-1.2, 1.2, 300)
         x, y = meshgrid(xs, ys)

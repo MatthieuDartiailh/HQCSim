@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 """
+import logging
 from atom.api import Atom, ContainerList, Str, Dict, List
 from configobj import ConfigObj
 from .experiments import EXPERIMENTS
@@ -54,7 +55,7 @@ class ControlCenter(Atom):
             return exp, exp.view
 
         except Exception as e:
-            print e
+            logging.exception('Error occured while loading an experiment')
             return None, None
 
     def destroy_experiment(self, exp):
