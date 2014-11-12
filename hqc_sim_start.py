@@ -16,7 +16,7 @@ with enaml.imports():
     from hqc_sim.main_window import HQCSimWindow
 
 
-class StreamToLogger(object):
+class StderrToLogger(object):
     """
     Fake file-like stream object that redirects writes to a logger instance.
     """
@@ -24,10 +24,17 @@ class StreamToLogger(object):
         self.logger = logger
         self.log_level = log_level
         self.linebuf = ''
+        self.encoding = sys.getdefaultencoding()
 
-    def write(self, buf):
-        for line in buf.rstrip().splitlines():
-            self.logger.log(self.log_level, line.rstrip())
+    def write(self, message):
+        message = message.strip()
+        message = message.decode(self.encoding)
+        if message:
+            for line in message.splitlines():
+                self.logger.log(self.log_level, line.rstrip())
+
+    def flush(self):
+        pass
 
 if __name__ == '__main__':
     filename = 'logs/hqc_sim{}.log'.format(datetime.datetime.now())
@@ -39,17 +46,17 @@ if __name__ == '__main__':
     console = logging.StreamHandler()
     console.setLevel(logging.INFO)
     # set a format which is simpler for console use
-    formatter = logging.Formatter('%(name)-12s: %(levelname)-8s %(message)s')
+    formatter = logging.Formatter('%(name)s - %(levelname)s - %(message)s')
     # tell the handler to use this format
     console.setFormatter(formatter)
     # add the handler to the root logger
     logging.getLogger('').addHandler(console)
 
-    logging.captureWarnings(True)
-
     stderr_logger = logging.getLogger('STDERR')
-    sl = StreamToLogger(stderr_logger, logging.ERROR)
+    sl = StderrToLogger(stderr_logger, logging.ERROR)
     sys.stderr = sl
+
+    logging.captureWarnings()
 
     logging.info('Logger parametrized')
 
