@@ -105,7 +105,7 @@ class Plot2D(BasePlot):
         if self.c_info:
             data = self.c_info.gather_data(exp)
             if len(data.shape) == 2:
-                self.data.set_data('c', data)
+                self.data.set_data('c', data.T)
                 self.update_plots_index()
 
     def update_plots_index(self):
