@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 """
+from operator import attrgetter
 from enaml.widgets.api import (DockItem, Container, Menu, Action, Dialog,
                                Notebook, Page, CheckBox, DockArea, ObjectCombo,
                                Label, ScrollArea, FlowArea, FlowItem,
@@ -94,7 +95,7 @@ def _create_manipulate_uis(exp, manipulate_vars):
         else:
             uis.append(FloatSlider(exp=exp, attr_name=v,
                                    label=v.capitalize()))
-    return uis
+    return sorted(uis, key=attrgetter('attr_name'))
 
 
 enamldef Experiment2DItem(DockItem): main:
