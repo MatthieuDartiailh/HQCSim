@@ -27,7 +27,7 @@ enamldef FloatSlider(Container):
         value = getattr(exp.model, attr_name)
         value ::
             va.value = change['value']
-            setattr(exp.model, attr_name, changed['value'])
+            setattr(exp.model, attr_name, change['value'])
             if exp.auto_update:
                 exp.request_recomputation(stage)
 
@@ -36,7 +36,7 @@ enamldef FloatSlider(Container):
             value << fi.value
             value::
                 va.value = change['value']
-                setattr(exp.model, attr_name, changed['value'])
+                setattr(exp.model, attr_name, change['value'])
                 if exp.auto_update:
                     exp.request_recomputation(stage)
             minimum << fi.value - exp.manipulate_vars.get(attr_name, 1)
