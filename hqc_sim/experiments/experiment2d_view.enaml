@@ -65,6 +65,9 @@ enamldef Experiment2DConfig(Dialog): di:
     attr exp
 
     title = 'Choose manipulable vars.'
+    closed ::
+        if exp.auto_update:
+            exp.request_recomputation('field')
 
     Container:
 
