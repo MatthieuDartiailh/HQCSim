@@ -68,10 +68,11 @@ class AbstractModel(HasPrefAtom):
     a stage used in the recompuation and a default_range used when
     manipulating.
     It should also define a number of computed quantites (as Value) which can
-    numpy arrays in the absence of hysteresis or tuple of such arrays. They
+    be numpy arrays in the absence of hysteresis or tuple of such arrays. They
     should be tagged with a name, a dim specifying the last dimensions of the
     arrays, and optionally a symbol (short name version) and a map (tuple of
-    names identifying the array last dimensions).
+    names identifying the array last dimensions or a function taking the object
+    as arg and returning such a tuple).
 
     """
     # =========================================================================

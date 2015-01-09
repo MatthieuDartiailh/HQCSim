@@ -133,6 +133,10 @@ class BaseExperiment(HasPrefAtom):
                                     'dtype': m.metadata.get('dtype', 'float')}
                                    for k, m in plt_d.iteritems()}
 
+            for met in self.plottable_data.values():
+                if isinstance(met['map'], callable):
+                    met['map'] = met['map'](new)
+
     def _set_plot_axis(self, plot):
         """
         """
