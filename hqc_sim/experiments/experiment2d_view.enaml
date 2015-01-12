@@ -36,6 +36,12 @@ def _build_config_content(exp, model):
                               default_range=_def_range(exp, m, member)
                               )
             configs.append(w)
+        elif isinstance(member, Enum):
+            w = EnumConfig(exp=exp, var_name=m,
+                            label=member.metadata['label'],
+                            tool_tip=member.metadata['desc'],
+                            )
+            configs.append(w)
         else:
             w = FloatConfig(exp=exp, var_name=m,
                             label=member.metadata['label'],

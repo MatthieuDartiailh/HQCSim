@@ -97,3 +97,21 @@ enamldef FloatConfig(Container): cont:
                     aux = exp.manipulate_vars.copy()
                     aux[var_name] = value
                     exp.manipulate_vars = aux
+
+enamldef EnumConfig(Container): cont:
+    """
+    """
+    attr exp
+    attr var_name
+    attr label
+
+    padding = 0
+    constraints << [hbox(lb, fi)]
+
+    Label: lb:
+        text = label
+
+    ObjectCombo: fi:
+        items = list(exp.model.get_member(var_name).items)
+        selected << getattr(exp.model, var_name)
+        selected :: setattr(exp.model, var_name, selected)
