@@ -121,7 +121,7 @@ class BaseExperiment(HasPrefAtom):
                                   'stage': m.metadata['stage'],
                                   'label': m.metadata['label'],
                                   'desc': m.metadata['desc'],
-                                  'def_range': m.metadata['def_range']}
+                                  'def_range': m.metadata.get('def_range')}
                               for k, m in adj_vars.iteritems()}
 
             plt_d = tagged_members(new, 'name')
@@ -134,7 +134,7 @@ class BaseExperiment(HasPrefAtom):
                                    for k, m in plt_d.iteritems()}
 
             for met in self.plottable_data.values():
-                if isinstance(met['map'], callable):
+                if callable(met['map']):
                     met['map'] = met['map'](new)
 
     def _set_plot_axis(self, plot):

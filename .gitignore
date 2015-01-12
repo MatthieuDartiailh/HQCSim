@@ -1,4 +1,5 @@
 *.pyc
+*.log
 *~
 tests
 hqc_sim/models/.git
