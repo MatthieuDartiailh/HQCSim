@@ -4,6 +4,7 @@
 import logging
 import enaml
 import numpy as np
+from traceback import format_exc
 from atom.api import Str
 
 from .base_experiment import BaseExperiment
@@ -17,16 +18,6 @@ class Experiment1D(BaseExperiment):
     #: Name of the attribute of the sq model used as x axis.
     x_axis = Str().tag(pref=True)
 
-    def request_recomputation(self, stage, size=False):
-        """
-
-        """
-        try:
-            self.model.recompute(stage)
-        except Exception as e:
-            err = 'Exp {} : recomputation failed : {}'.format(self.name, e)
-            logger = logging.getLogger(__name__)
-            logger.error(err)
 
     def get_data(self, member_name, indexes):
         """

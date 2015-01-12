@@ -2,6 +2,8 @@
 """
 """
 import cPickle
+import logging
+from traceback import format_exc
 from atom.api import Dict, Str, Bool, List, Value
 from enaml.layout.api import InsertItem
 
@@ -44,7 +46,13 @@ class BaseExperiment(HasPrefAtom):
         """
 
         """
-        raise NotImplementedError()
+        try:
+            self.model.recompute(stage)
+        except Exception:
+            err = 'Exp {} : recomputation failed : {}'.format(self.name,
+                                                              format_exc())
+            logger = logging.getLogger(__name__)
+            logger.error(err)
 
     def get_data(self, member_name, indexes):
         """
