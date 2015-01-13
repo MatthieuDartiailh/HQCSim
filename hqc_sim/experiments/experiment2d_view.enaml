@@ -2,6 +2,7 @@
 """
 """
 from operator import attrgetter
+from atom.api import Enum
 from enaml.widgets.api import (DockItem, Container, Menu, Action, Dialog,
                                Notebook, Page, CheckBox, DockArea, ObjectCombo,
                                Label, ScrollArea, FlowArea, FlowItem,
@@ -14,7 +15,7 @@ from ..utils.has_pref_atom import tagged_members
 from ..utils.ui.manipulation_tools import (FloatSlider, FloatVaryingSlider,
                                            LinspaceVaryingEditor)
 from ..utils.ui.config_tools import (FloatVaryingField, VaryingConfig,
-                                     FloatConfig)
+                                     FloatConfig, EnumConfig)
 from ..plotting.d2.plot2d_views import AddPlot2DDialog
 
 
