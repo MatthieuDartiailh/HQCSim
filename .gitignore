@@ -1,7 +1,7 @@
 *.pyc
 *.log
 *~
-tests
+old_scripts
 hqc_sim/models/.git
 hqc_sim/models/.gitignore
 hqc_sim/models/*sq*

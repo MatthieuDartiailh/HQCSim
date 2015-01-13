@@ -203,10 +203,20 @@ def index_sort(arr, index):
     n_sorted = 0
     i_sorted = 0
     aux = len(index)
+    mini = 0.
+    for i in range_(aux):
+        if arr[i] < arr[i_sorted]:
+            i_sorted = i
+    index[n_sorted] = i_sorted
+    mini = arr[i_sorted]
+    n_sorted += 1
+    i_sorted = n_sorted
+
     while n_sorted < aux:
-        for i in range_(n_sorted+1, aux):
-            if arr[i] < arr[i_sorted]:
+        for i in range_(aux):
+            if arr[i_sorted] <= mini or mini < arr[i] < arr[i_sorted]:
                 i_sorted = i
         index[n_sorted] = i_sorted
+        mini = arr[i_sorted]
         n_sorted += 1
         i_sorted = n_sorted
