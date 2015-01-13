@@ -55,7 +55,7 @@ enamldef AddPlot1DDialog(Dialog): dial:
         Label: n_lb:
             text = 'Name'
         Field: n_vl:
-            pass
+            text := plot.name
 
         Plot1DConfig: conf:
             hug_width = 'ignore'
