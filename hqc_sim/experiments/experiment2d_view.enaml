@@ -54,7 +54,7 @@ def _build_config_content(exp, model):
     return configs
 
 
-def _constraints(container, col_len=8):
+def _constraints(container, col_len=9):
     """
     """
     widgets = container.visible_widgets()
