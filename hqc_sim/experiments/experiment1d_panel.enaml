@@ -157,7 +157,7 @@ enamldef Experiment1DItem(DockItem): main:
         PushButton: re:
             text = 'Recompute'
             clicked ::
-                exp.request_recomputation(stage='field')
+                exp.request_recomputation(stage='all')
 
         DockArea: area:
             pass

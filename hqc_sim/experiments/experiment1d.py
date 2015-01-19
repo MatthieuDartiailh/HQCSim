@@ -18,7 +18,6 @@ class Experiment1D(BaseExperiment):
     #: Name of the attribute of the sq model used as x axis.
     x_axis = Str().tag(pref=True)
 
-
     def get_data(self, member_name, indexes):
         """
         """

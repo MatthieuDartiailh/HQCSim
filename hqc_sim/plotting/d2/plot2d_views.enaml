@@ -10,6 +10,7 @@ from enaml.layout.api import InsertItem, hbox, vbox, spacer, grid, factory
 import traits_enaml
 with traits_enaml.imports():
     from traits_enaml.widgets.enable_canvas import EnableCanvas
+    from traits_enaml.widgets.traits_view import TraitsView
 
 from ..data_views import INFO_CONFIG_MAP
 from ..data_infos import DATA_INFOS
@@ -110,10 +111,15 @@ enamldef Plot2DItem(DockItem): main:
                 name = 'gr'
                 title = 'Graph'
                 Container:
+                    constraints = [vbox(hbox(can, vbox(zoom, spacer)), co)]
+
                     EnableCanvas: can:
                         component << plot.container
 
-                    ObjectCombo:
+                    TraitsView: zoom:
+                        model := plot.zoom_colorbar
+
+                    ObjectCombo: co:
                         items << list(plot.get_member('colormap').items)
                         selected := plot.colormap
 

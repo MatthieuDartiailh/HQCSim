@@ -5,4 +5,6 @@ old_scripts
 hqc_sim/models/.git
 hqc_sim/models/.gitignore
 hqc_sim/models/*sq*
+hqc_sim/models/*cq*
+hqc_sim/models/*svq*
 __enamlcache__/

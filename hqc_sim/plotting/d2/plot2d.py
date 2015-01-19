@@ -17,6 +17,7 @@ from numpy import cosh, exp, linspace, meshgrid, tanh
 from ..base_plot import BasePlot
 from ..data_infos import AbstractInfo, DATA_INFOS
 from .chaco_renderer import ChacoPlot2D
+from .zoom_bar import zoom_bar, ZoomBar
 with enaml.imports():
     from .plot2d_views import Plot2DItem
 
@@ -26,6 +27,8 @@ class Plot2D(BasePlot):
     """
     #: Colorbar of the plot (ideally this should be abstracted away)
     colorbar = Typed(ColorBar)
+
+    zoom_colorbar = Typed(ZoomBar)
 
     #: Container for Chaco components
     container = Typed(HPlotContainer)
@@ -93,7 +96,11 @@ class Plot2D(BasePlot):
                                            constrain_direction="y",
                                            constrain=True)
                                    )
-
+        self.zoom_colorbar = zoom_bar(self.colorbar,
+                                      box=False,
+                                      reset=True,
+                                      orientation='vertical'
+                                      )
         self.colormap = 'Blues'
 
     # For the time being stage is unused (will try to refine stuff if it is
