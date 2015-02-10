@@ -3,6 +3,7 @@
 """
 import enaml
 from chaco.api import Plot
+from chaco.tools.api import BetterSelectingZoom, PanTool
 from atom.api import (List, Str)
 
 from ..base_plot import BasePlot
@@ -33,6 +34,10 @@ class Plot1D(BasePlot):
         exp = self.experiment
         self.data.set_data('x', getattr(exp.model, exp.x_axis).linspace)
         # Add basic tools and ways to activate them in public API
+        zoom = BetterSelectingZoom(self.renderer, tool_mode="box",
+                                   always_on=False)
+        self.renderer.overlays.append(zoom)
+        self.renderer.tools.append(PanTool(self.renderer))
 
     @classmethod
     def build_view(cls, plot):
