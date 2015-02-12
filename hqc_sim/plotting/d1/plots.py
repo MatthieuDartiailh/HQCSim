@@ -37,7 +37,8 @@ class Plot1D(BasePlot):
         zoom = BetterSelectingZoom(self.renderer, tool_mode="box",
                                    always_on=False)
         self.renderer.overlays.append(zoom)
-        self.renderer.tools.append(PanTool(self.renderer))
+        self.renderer.tools.append(PanTool(self.renderer,
+                                           restrict_to_data=True))
 
     @classmethod
     def build_view(cls, plot):

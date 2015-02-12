@@ -15,6 +15,12 @@ class AbstractInfo(HasPrefAtom):
 
     info_class = Str().tag(pref=True)
 
+    def make_header(self, experiment):
+        """Make a header line describing the plotted quantities.
+
+        """
+        raise NotImplementedError()
+
     def gather_data(self, experiment):
         """
         """
@@ -32,6 +38,14 @@ class SimpleInfo(AbstractInfo):
     indexes = Tuple().tag(pref=True)
 
     part = Enum('float', 'real', 'imag').tag(pref=True)
+
+    def make_header(self, experiment):
+        """
+        """
+        h = 'Simple ' + self.m_name
+        if self.part != 'float':
+            h += ' ' + self.part
+        return h
 
     def gather_data(self, experiment):
         """
@@ -56,6 +70,17 @@ class SumInfo(AbstractInfo):
     indexes = List(Tuple()).tag(pref=True)
 
     part = Enum('float', 'real', 'imag').tag(pref=True)
+
+    def make_header(self, experiment):
+        """
+        """
+        metas = {m['m_name']: m for m in experiment.plottable_data.values()}
+        meta = metas[self.m_name]['map']
+        name = (self.m_name if self.part == 'float'
+                else self.m_name + ' ' + self.part)
+        h = 'Sum {} : {}'.format(name, [meta[i[0]]
+                                        for i in sorted(self.indexes)])
+        return h
 
     def gather_data(self, experiment):
         """

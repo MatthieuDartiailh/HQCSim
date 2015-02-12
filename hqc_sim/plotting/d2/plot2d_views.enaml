@@ -4,7 +4,8 @@
 from enaml.core.api import Looper, Conditional
 from enaml.widgets.api import (DockItem, Container, Menu, Action, Dialog,
                                PushButton, ToolBar, Action, Notebook, Page,
-                               ObjectCombo, RadioButton, Label, Field)
+                               ObjectCombo, RadioButton, Label, Field,
+                               FileDialogEx)
 from enaml.stdlib.mapped_view import MappedView
 from enaml.layout.api import InsertItem, hbox, vbox, spacer, grid, factory
 import traits_enaml
@@ -111,13 +112,28 @@ enamldef Plot2DItem(DockItem): main:
                 name = 'gr'
                 title = 'Graph'
                 Container:
-                    constraints = [vbox(hbox(can, vbox(zoom, spacer)), co)]
+                    constraints = [vbox(hbox(can, vbox(zoom, spacer)),
+                                        hbox(sc, ex, co)),
+                                   sc.width == ex.width, ex.width == co.width]
 
                     EnableCanvas: can:
                         component << plot.container
 
                     TraitsView: zoom:
                         model := plot.zoom_colorbar
+
+                    PushButton: sc:
+                        text = 'Autoscale'
+                        clicked ::
+                            plot.auto_scale()
+
+                    PushButton: ex:
+                        text = 'Export'
+                        clicked ::
+                            factory = FileDialogEx.get_save_file_name
+                            path = factory(main, name_filters=['*.dat'])
+                            if path:
+                                plot.export_data(path)
 
                     ObjectCombo: co:
                         items << list(plot.get_member('colormap').items)

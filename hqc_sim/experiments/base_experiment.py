@@ -72,6 +72,11 @@ class BaseExperiment(HasPrefAtom):
         view.parent.update_layout(InsertItem(item=view.name, target='log',
                                              position='top'))
 
+    def make_header(self):
+        """
+        """
+        return self.model.make_header()
+
     def preferences_from_members(self):
         """
         """

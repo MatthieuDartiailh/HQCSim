@@ -8,11 +8,11 @@ from chaco.api\
             GridDataSource, ImagePlot, CMapImagePlot, ContourPolyPlot)
 
 from chaco.tools.api\
-    import PanTool
+    import PanTool, BetterSelectingZoom
 
 from chaco.default_colormaps import color_map_name_dict, Greys
 
-from numpy import cosh, exp, linspace, meshgrid, tanh
+from numpy import cosh, exp, linspace, meshgrid, tanh, savetxt
 
 from ..base_plot import BasePlot
 from ..data_infos import AbstractInfo, DATA_INFOS
@@ -72,6 +72,13 @@ class Plot2D(BasePlot):
                                xbounds=(self.x_min, self.x_max),
                                ybounds=(self.y_min, self.y_max))
 
+        # Add basic tools and ways to activate them in public API
+        zoom = BetterSelectingZoom(self.renderer, tool_mode="box",
+                                   always_on=False)
+        self.renderer.overlays.append(zoom)
+        self.renderer.tools.append(PanTool(self.renderer,
+                                           restrict_to_data=True))
+
         # Create the colorbar, the appropriate range and colormap are handled
         # at the plot creation
         mapper = LinearMapper(range=self.renderer.color_mapper.range)
@@ -102,6 +109,26 @@ class Plot2D(BasePlot):
                                       orientation='vertical'
                                       )
         self.colormap = 'Blues'
+
+    def export_data(self, path):
+        """
+        """
+        if not path.endswith('.dat'):
+            path += '.dat'
+        header = self.experiment.make_header()
+        header += '\n' + self.c_info.make_header(self.experiment)
+        arr = self.data.get_data('c')
+
+        with open(path, 'wb') as f:
+            header = ['#' + l for l in header.split('\n') if l]
+            f.write('\n'.join(header) + '\n')
+            savetxt(f, arr, fmt='%.6e', delimiter='\t')
+
+    def auto_scale(self):
+        """
+        """
+        self.renderer.range2d.set_bounds(('auto', 'auto'), ('auto', 'auto'))
+        self.renderer.color_mapper.range.set_bounds('auto', 'auto')
 
     # For the time being stage is unused (will try to refine stuff if it is
     # needed)

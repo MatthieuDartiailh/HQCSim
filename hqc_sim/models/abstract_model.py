@@ -124,5 +124,11 @@ class AbstractModel(HasPrefAtom):
         """
         raise NotImplementedError()
 
+    def make_header(self):
+        """Make a string summarizing all the parameters of the model.
+
+        """
+        raise NotImplementedError()
+
     def _default_model_class(self):
         return self.__class__.__name__
