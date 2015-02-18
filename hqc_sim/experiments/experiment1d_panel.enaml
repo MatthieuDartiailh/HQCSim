@@ -113,7 +113,8 @@ enamldef Experiment1DItem(DockItem): main:
 
     Container:
 
-        constraints = [hbox(vbox(auto, x_ax, man, ed, gr, re), area)]
+        constraints = [hbox(vbox(auto, x_ax, man, hbox(ed, gr, re)), area),
+                       ed.width == gr.width, gr.width == re.width]
 
         CheckBox: auto:
             text = 'Auto-recompute'
@@ -137,6 +138,8 @@ enamldef Experiment1DItem(DockItem): main:
                 attr_name << exp.x_axis
 
         ScrollArea: man:
+            resist_height = 'weak'
+            widget_resizable = False
             Container:
                 Include: incl_man:
                     objects << _create_manipulate_uis(exp,

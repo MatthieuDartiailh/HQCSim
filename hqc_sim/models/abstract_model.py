@@ -37,7 +37,7 @@ class Varying(HasPrefAtom):
             self.value = value
 
     def _get_points(self):
-        return int(round((self.maximum-self.minimum)/self.step)) + 1
+        return int(round(abs((self.maximum-self.minimum))/self.step)) + 1
 
     def _get_linspace(self):
         points = int(round((self.maximum-self.minimum)/self.step)) + 1

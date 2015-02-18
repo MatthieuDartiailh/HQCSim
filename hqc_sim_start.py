@@ -17,8 +17,8 @@ with enaml.imports():
 
 
 class StderrToLogger(object):
-    """
-    Fake file-like stream object that redirects writes to a logger instance.
+    """Fake file-like stream object that redirects writes to a logger instance.
+
     """
     def __init__(self, logger, log_level=logging.INFO):
         self.logger = logger
