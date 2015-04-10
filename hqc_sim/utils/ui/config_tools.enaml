@@ -115,3 +115,15 @@ enamldef EnumConfig(Container): cont:
         items = list(exp.model.get_member(var_name).items)
         selected << getattr(exp.model, var_name)
         selected :: setattr(exp.model, var_name, selected)
+
+
+enamldef BoolConfig(CheckBox): cont:
+    """
+    """
+    attr exp
+    attr var_name
+    attr label
+
+    text << label
+    checked << getattr(exp.model, var_name)
+    checked :: setattr(exp.model, var_name, checked)

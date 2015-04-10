@@ -87,8 +87,8 @@ class SumInfo(AbstractInfo):
         """
         if self.m_name:
             data = 0
-            for index in self.indexes:
-                data += experiment.get_data(self.m_name, index)
+            data += reduce(np.add, [experiment.get_data(self.m_name, index)
+                                    for index in self.indexes])
             if self.part == 'float':
                 return data
             elif self.part == 'real':

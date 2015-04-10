@@ -94,7 +94,7 @@ class AbstractModel(HasPrefAtom):
     #: level.
     recomputed = Signal()
 
-    #: Flag indicating whether model compuatation already occurred. This should
+    #: Flag indicating whether model computation already occurred. This should
     #: be set in the recompute method.
     initialized = Bool()
 
