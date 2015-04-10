@@ -1,0 +1,105 @@
+# -*- coding: utf-8 -*-
+"""
+"""
+from operator import attrgetter
+from atom.api import Enum, Bool
+from enaml.widgets.api import (DockItem, Container, Menu, Action, Dialog,
+                               Notebook, Page, CheckBox, DockArea, ObjectCombo,
+                               Label, ScrollArea, FlowArea, FlowItem,
+                               GroupBox, PushButton)
+from enaml.core.api import Include, Conditional
+from enaml.layout.api import hbox, vbox, spacer, factory
+
+from ..utils.has_pref_atom import tagged_members
+from ..utils.ui.manipulation_tools import (FloatSlider, FloatVaryingSlider,
+                                           LinspaceVaryingEditor)
+from ..utils.ui.config_tools import (FloatVaryingField, VaryingConfig,
+                                     FloatConfig, EnumConfig, BoolConfig)
+
+
+def _def_range(exp, m, member):
+    return exp.manipulate_vars.get(m, float(member.metadata['def_range']))
+
+
+def _build_config_content(exp, model):
+    """
+    """
+    configs = []
+    tagged = tagged_members(model, 'stage')
+    for m in sorted(tagged):
+        member = tagged[m]
+        if exp.vars_meta[m]['varying']:
+            w = VaryingConfig(exp=exp, var_name=m,
+                              label=member.metadata['label'],
+                              tool_tip=member.metadata['desc'],
+                              default_range=_def_range(exp, m, member)
+                              )
+            configs.append(w)
+        elif isinstance(member, Enum):
+            w = EnumConfig(exp=exp, var_name=m,
+                           label=member.metadata['label'],
+                           tool_tip=member.metadata['desc'],
+                           )
+            configs.append(w)
+        elif isinstance(member, Bool):
+            w = BoolConfig(exp=exp, var_name=m,
+                           label=member.metadata['label'])
+            configs.append(w)
+        else:
+            w = FloatConfig(exp=exp, var_name=m,
+                            label=member.metadata['label'],
+                            tool_tip=member.metadata['desc'],
+                            default_range=_def_range(exp, m, member)
+                            )
+            configs.append(w)
+
+    return configs
+
+
+def _constraints(container, col_len=9):
+    """
+    """
+    widgets = container.visible_widgets()
+    cols = [widgets[i:i+col_len] for i in range(0, len(widgets), col_len)]
+
+    constraints = []
+    constraints.extend([col[0].width == cols[0][0].width for col in cols[1:]])
+    constraints.append(hbox(*[vbox(*col) for col in cols]))
+    return constraints
+
+
+enamldef ExperimentConfig(Dialog): di:
+
+    attr exp
+
+    title = 'Choose manipulable vars.'
+    closed ::
+        if exp.auto_update:
+            exp.request_recomputation('all')
+
+    Container:
+
+        constraints = [vbox(fl, hbox(spacer, cl))]
+
+        Container: fl:
+            constraints << [factory(_constraints)]
+            Include:
+                objects << _build_config_content(exp, exp.model)
+        PushButton: cl:
+            text = 'Close'
+            clicked ::
+                di.close()
+
+
+def create_manipulate_uis(exp, manipulate_vars):
+    """
+    """
+    uis = []
+    for v in manipulate_vars:
+        if exp.vars_meta[v]['varying']:
+            uis.append(FloatVaryingSlider(exp=exp, attr_name=v,
+                                          label=v.capitalize()))
+        else:
+            uis.append(FloatSlider(exp=exp, attr_name=v,
+                                   label=v.capitalize()))
+    return sorted(uis, key=attrgetter('attr_name'))
