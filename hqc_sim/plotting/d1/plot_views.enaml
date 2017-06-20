@@ -4,7 +4,8 @@
 from enaml.core.api import Looper, Conditional
 from enaml.widgets.api import (DockItem, Container, Menu, Action, Dialog,
                                PushButton, ToolBar, Action, Notebook, Page,
-                               ObjectCombo, RadioButton, Label, Field)
+                               ObjectCombo, RadioButton, Label, Field,
+                               FileDialogEx)
 from enaml.stdlib.mapped_view import MappedView
 from enaml.layout.api import InsertItem, hbox, vbox, spacer, grid, factory
 import traits_enaml
@@ -93,12 +94,20 @@ enamldef Plot1DItem(DockItem): main:
                 name = 'gr'
                 title = 'Graph'
                 Container:
-                    EnableCanvas:
+                    constraints = [vbox(can, hbox(tb, ex))]
+                    EnableCanvas: can:
                         component << plot.renderer
 
-                    ToolBar:
+                    ToolBar: tb:
                         # Add plot tools and edition tools here.
                         pass
+                    PushButton: ex:
+                        text = 'Export'
+                        clicked ::
+                            factory = FileDialogEx.get_save_file_name
+                            path = factory(main, name_filters=['*.dat'])
+                            if path:
+                                plot.export_data(path)
             Page:
                 title = 'Config'
                 Container:

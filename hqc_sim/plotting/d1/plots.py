@@ -2,6 +2,7 @@
 """
 """
 import enaml
+import numpy as np
 from chaco.api import Plot
 from chaco.tools.api import BetterSelectingZoom, PanTool
 from atom.api import (List, Str)
@@ -75,6 +76,29 @@ class Plot1D(BasePlot):
         for info in self.y_infos:
             data = info.gather_data(exp)
             self.data.set_data(info.id, data)
+            
+    def export_data(self, path):
+        """
+        """
+        if not path.endswith('.dat'):
+            path += '.dat'
+        header = self.experiment.make_header()
+        header += '\n' + '\n'.join([i.make_header(self.experiment) 
+                                     for i in self.y_infos])
+
+        data = ([self.data.get_data('x')] + 
+                [i.gather_data(self.experiment) for i in self.y_infos])
+        data = [d for d in data if len(d)!=0] # remove empty arrays
+        arr = np.rec.fromarrays(data,
+                                names=([self.x_axis] +
+                                       [i.m_name + str(i.indexes) 
+                                        for i in self.y_infos]))
+
+        with open(path, 'wb') as f:
+            header = ['#' + l for l in header.split('\n') if l]
+            f.write('\n'.join(header) + '\n')
+            f.write('\t'.join(arr.names) + '\n')
+            np.savetxt(f, arr, fmt='%.6e', delimiter='\t')
 
     def preferences_from_members(self):
         """
