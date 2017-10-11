@@ -2,13 +2,7 @@
 """Numba optimized array manipulation routines.
 
 """
-import sys
 from numba import njit
-
-if sys.version_info[0] == 2:
-    range_ = xrange
-else:
-    range_ = range
 
 
 @njit
@@ -27,7 +21,7 @@ def fill_array2d_from_column(arr, i, data):
         One dimensional array whose values should be copied in arr.
 
     """
-    for j in range_(len(data)):
+    for j in range(len(data)):
         arr[i, j] = data[j]
 
 
@@ -47,8 +41,8 @@ def fill_array3d_from_matrix(arr, i, data):
         Bidimensional array to copy into arr.
 
     """
-    for j in range_(data.shape[0]):
-        for k in range_(data.shape[1]):
+    for j in range(data.shape[0]):
+        for k in range(data.shape[1]):
             arr[i, j, k] = data[j, k]
 
 
@@ -71,7 +65,7 @@ def fill_array3d_from_column(arr, i, j, data):
         One dimensional array whose values should be copied in arr.
 
     """
-    for k in range_(len(data)):
+    for k in range(len(data)):
         arr[i, j, k] = data[k]
 
 
@@ -94,8 +88,8 @@ def fill_array4d_from_matrix(arr, i, j, data):
         Bidimensional array to copy into arr.
 
     """
-    for k in range_(data.shape[0]):
-        for l in range_(data.shape[1]):
+    for k in range(data.shape[0]):
+        for l in range(data.shape[1]):
             arr[i, j, k, l] = data[k, l]
 
 
@@ -115,7 +109,7 @@ def fill_column_from_array2d(col, arr, i):
         Index of the line to copy into col.
 
     """
-    for j in range_(len(col)):
+    for j in range(len(col)):
         col[j] = arr[i, j]
 
 
@@ -138,7 +132,7 @@ def fill_column_from_array3d(col, arr, i, j):
         Index of the line to copy into col.
 
     """
-    for k in range_(len(col)):
+    for k in range(len(col)):
         col[k] = arr[i, j, k]
 
 
@@ -158,8 +152,8 @@ def fill_matrix_from_array3d(mat, arr, i):
         Index of the line to copy into mat.
 
     """
-    for j in range_(mat.shape[0]):
-        for k in range_(mat.shape[1]):
+    for j in range(mat.shape[0]):
+        for k in range(mat.shape[1]):
             mat[j, k] = arr[i, j, k]
 
 
@@ -182,8 +176,8 @@ def fill_matrix_from_array4d(mat, arr, i, j):
         Index of the line to copy into mat.
 
     """
-    for k in range_(mat.shape[0]):
-        for l in range_(mat.shape[1]):
+    for k in range(mat.shape[0]):
+        for l in range(mat.shape[1]):
             mat[k, l] = arr[i, j, k, l]
 
 
@@ -204,7 +198,7 @@ def index_sort(arr, index):
     i_sorted = 0
     aux = len(index)
     mini = 0.
-    for i in range_(aux):
+    for i in range(aux):
         if arr[i] < arr[i_sorted]:
             i_sorted = i
     index[n_sorted] = i_sorted
@@ -213,7 +207,7 @@ def index_sort(arr, index):
     i_sorted = n_sorted
 
     while n_sorted < aux:
-        for i in range_(aux):
+        for i in range(aux):
             if arr[i_sorted] <= mini or mini < arr[i] < arr[i_sorted]:
                 i_sorted = i
         index[n_sorted] = i_sorted

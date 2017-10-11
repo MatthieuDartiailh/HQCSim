@@ -37,7 +37,7 @@ class SimpleInfo(AbstractInfo):
 
     indexes = Tuple().tag(pref=True)
 
-    part = Enum('float', 'real', 'imag').tag(pref=True)
+    part = Enum('float', 'real', 'imag', 'mag', 'phase').tag(pref=True)
 
     def make_header(self, experiment):
         """
@@ -56,8 +56,12 @@ class SimpleInfo(AbstractInfo):
                 return data
             elif self.part == 'real':
                 return np.real(data)
-            else:
+            elif self.part == 'imag':
                 return np.imag(data)
+            elif self.part == 'mag':
+                return np.abs(data)
+            else:
+                return np.angle(data, True)
 
         return np.array([])
 
@@ -69,7 +73,7 @@ class SumInfo(AbstractInfo):
 
     indexes = List(Tuple()).tag(pref=True)
 
-    part = Enum('float', 'real', 'imag').tag(pref=True)
+    part = Enum('float', 'real', 'imag', 'mag', 'phase').tag(pref=True)
 
     def make_header(self, experiment):
         """
@@ -93,8 +97,12 @@ class SumInfo(AbstractInfo):
                 return data
             elif self.part == 'real':
                 return np.real(data)
-            else:
+            elif self.part == 'imag':
                 return np.imag(data)
+            elif self.part == 'mag':
+                return np.abs(data)
+            else:
+                return np.angle(data, True)
 
         return np.array([])
 

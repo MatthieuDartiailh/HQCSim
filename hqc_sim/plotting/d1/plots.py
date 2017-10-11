@@ -97,7 +97,7 @@ class Plot1D(BasePlot):
         with open(path, 'wb') as f:
             header = ['#' + l for l in header.split('\n') if l]
             f.write('\n'.join(header) + '\n')
-            f.write('\t'.join(arr.names) + '\n')
+            f.write('\t'.join(arr.dtype.names) + '\n')
             np.savetxt(f, arr, fmt='%.6e', delimiter='\t')
 
     def preferences_from_members(self):

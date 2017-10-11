@@ -38,8 +38,14 @@ def _plottable_(plottable_data):
             real['dtype'] = 'real'
             imag = meta.copy()
             imag['dtype'] = 'imag'
+            mag = meta.copy()
+            mag['dtype'] = 'mag'
+            phase = meta.copy()
+            phase['dtype'] = 'phase'
             items.extend([('Re({})'.format(name), real),
-                          ('Im({})'.format(name), imag)])
+                          ('Im({})'.format(name), imag),
+                          ('|{}|'.format(name), mag),
+                          ('Arg({})'.format(name), phase)])
     return sorted(items, key=itemgetter(0))
 
 enamldef SimpleInfoConfig(AbstractInfoConfig): main:
