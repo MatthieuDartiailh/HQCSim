@@ -13,7 +13,9 @@ for pack in os.listdir(dir_path):
     if os.path.isdir(path):
         if os.path.isfile(os.path.join(path, 'factories.py')):
             try:
-                mod = import_module('.'+pack+'.factories', 'hqc_sim.models')
+                mod = import_module('.' + pack + '.factories',
+                                    'hqc_sim.models')
                 FACTORIES.update(mod.FACTORIES)
             except ImportError:
-                pass
+                import logging
+                logging.exception('Failed to load model factories')
